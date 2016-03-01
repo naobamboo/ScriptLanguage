@@ -5,6 +5,7 @@
 #include "language.h"
 
 extern int yyparse(void);
+extern FILE* yyin;
 
 void
 yyerror(char *s, ...)
@@ -62,6 +63,9 @@ eval(struct ast *a)
 int
 main()
 {
-	printf("> ");
+	if ((yyin = fopen("./input.txt", "r")) == NULL) {
+		fprintf(stderr, "Can't open a input file\n");
+		return 1;
+	}
 	return yyparse();
 }
