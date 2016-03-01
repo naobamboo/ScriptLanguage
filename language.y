@@ -18,6 +18,7 @@ int yywrap()
 
 %token <n> NUMBER
 %token EOL
+%type <a> factor
 %type <a> exp
 
 %left '+' '-'
@@ -34,12 +35,14 @@ line
 	| exp EOL { printf("%d\n", eval($1)); }
 	;
 
+factor
+	: '(' exp ')' { $$ = $2; }
+	| NUMBER { $$ = newnum($1); }
+	;
 exp
-	: NUMBER { $$ = newnum($1); }
-	| '(' exp ')' { $$ = $2; }
-	| exp '+' exp { $$ = newast(exp, "+", $1, $3); }
-	| exp '-' exp { $$ = newast(exp, "-", $1, $3); }
-	| exp '*' exp { $$ = newast(exp, "*", $1, $3); }
-	| exp '/' exp { $$ = newast(exp, "/", $1, $3); }
+	: factor '+' factor { $$ = newast(factor, "+", $1, $3); }
+	| factor '-' factor { $$ = newast(factor, "-", $1, $3); }
+	| factor '*' factor { $$ = newast(factor, "*", $1, $3); }
+	| factor '/' factor { $$ = newast(factor, "/", $1, $3); }
 	;
 %%

@@ -29,7 +29,7 @@ newast(int nodetype, char* contents, struct ast *l, struct ast *r)
 	return a;
 }
 
-struct ast* 
+struct ast*
 newnum(int n)
 {
 	struct numval *a = malloc(sizeof(struct numval));
@@ -48,7 +48,7 @@ eval(struct ast *a)
 		case number:
 			v = ((struct numval*)a)->number;
 			break;
-		case exp:
+		case factor:
 			left = eval(a->l);
 			right = eval(a->r);
 			if (strcmp(a->contents, "+") == 0) { v = left + right; }

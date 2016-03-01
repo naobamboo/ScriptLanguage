@@ -1,5 +1,6 @@
 enum nodetype {
 	number = 1,
+    factor,
 	exp
 } nodetype;
 
