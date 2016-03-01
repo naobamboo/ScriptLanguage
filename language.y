@@ -12,12 +12,13 @@ int yywrap()
 %}
 
 %union {
+	struct ast* a;
 	int n;
 }
 
 %token <n> NUMBER
 %token EOL
-%type <n> exp
+%type <a> exp
 
 %left '+' '-'
 %left '*' '/'
@@ -29,16 +30,16 @@ lines
 	;
 
 line
-	: EOL 
-	| exp EOL { printf("%d\n", $1); }
+	: EOL
+	| exp EOL { printf("%d\n", eval($1)); }
 	;
 
 exp
-	: NUMBER
+	: NUMBER { $$ = newnum($1); }
 	| '(' exp ')' { $$ = $2; }
-	| exp '+' exp { $$ = $1 + $3; }
-	| exp '-' exp { $$ = $1 - $3; }
-	| exp '*' exp { $$ = $1 * $3; }
-	| exp '/' exp { $$ = $1 / $3; }
+	| exp '+' exp { $$ = newast(exp, "+", $1, $3); }
+	| exp '-' exp { $$ = newast(exp, "-", $1, $3); }
+	| exp '*' exp { $$ = newast(exp, "*", $1, $3); }
+	| exp '/' exp { $$ = newast(exp, "/", $1, $3); }
 	;
 %%

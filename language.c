@@ -17,6 +17,48 @@ yyerror(char *s, ...)
 	fprintf(stderr, "\n");
 }
 
+struct ast*
+newast(int nodetype, char* contents, struct ast *l, struct ast *r)
+{
+	struct ast *a = malloc(sizeof(struct ast));
+	a->nodetype =nodetype;
+	a->contents = contents;
+	a->l = l;
+	a->r = r;
+	return a;
+}
+
+struct ast* 
+newnum(int n)
+{
+	struct numval *a = malloc(sizeof(struct numval));
+	a->nodetype = number;
+	a->number = n;
+	return (struct ast*)a;
+}
+
+int
+eval(struct ast *a)
+{
+	int v;
+	int left;
+	int right;
+	switch(a->nodetype) {
+		case number:
+			v = ((struct numval*)a)->number;
+			break;
+		case exp:
+			left = eval(a->l);
+			right = eval(a->r);
+			if (strcmp(a->contents, "+") == 0) { v = left + right; }
+			if (strcmp(a->contents, "-") == 0) { v = left - right; }
+			if (strcmp(a->contents, "*") == 0) { v = left * right; }
+			if (strcmp(a->contents, "/") == 0) { v = left / right; }
+			break;
+	}
+	return v;
+}
+
 int
 main()
 {
