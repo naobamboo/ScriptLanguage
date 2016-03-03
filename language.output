@@ -1,0 +1,430 @@
+Grammar
+
+    0 $accept: stmts $end
+
+    1 stmts: stmt
+    2      | stmt stmts
+
+    3 stmt: let EOL
+    4     | call EOL
+
+    5 let: IDENT '=' exp ';'
+
+    6 call: IDENT '(' explist ')' ';'
+    7     | FUNC '(' explist ')' ';'
+
+    8 explist: exp ',' explist
+    9        | exp
+
+   10 exp: factor
+   11    | factor '+' factor
+   12    | factor '-' factor
+   13    | factor '*' factor
+   14    | factor '/' factor
+
+   15 factor: '(' exp ')'
+   16       | NUMBER
+   17       | IDENT
+   18       | STRING
+
+
+Terminals, with rules where they appear
+
+$end (0) 0
+'(' (40) 6 7 15
+')' (41) 6 7 15
+'*' (42) 13
+'+' (43) 11
+',' (44) 8
+'-' (45) 12
+'/' (47) 14
+';' (59) 5 6 7
+'=' (61) 5
+error (256)
+NUMBER (258) 16
+IDENT (259) 5 6 17
+STRING (260) 18
+FUNC (261) 7
+EOL (262) 3 4
+
+
+Nonterminals, with rules where they appear
+
+$accept (17)
+    on left: 0
+stmts (18)
+    on left: 1 2, on right: 0 2
+stmt (19)
+    on left: 3 4, on right: 1 2
+let (20)
+    on left: 5, on right: 3
+call (21)
+    on left: 6 7, on right: 4
+explist (22)
+    on left: 8 9, on right: 6 7 8
+exp (23)
+    on left: 10 11 12 13 14, on right: 5 8 9 15
+factor (24)
+    on left: 15 16 17 18, on right: 10 11 12 13 14
+
+
+state 0
+
+    0 $accept: . stmts $end
+
+    IDENT  shift, and go to state 1
+    FUNC   shift, and go to state 2
+
+    stmts  go to state 3
+    stmt   go to state 4
+    let    go to state 5
+    call   go to state 6
+
+
+state 1
+
+    5 let: IDENT . '=' exp ';'
+    6 call: IDENT . '(' explist ')' ';'
+
+    '='  shift, and go to state 7
+    '('  shift, and go to state 8
+
+
+state 2
+
+    7 call: FUNC . '(' explist ')' ';'
+
+    '('  shift, and go to state 9
+
+
+state 3
+
+    0 $accept: stmts . $end
+
+    $end  shift, and go to state 10
+
+
+state 4
+
+    1 stmts: stmt .
+    2      | stmt . stmts
+
+    IDENT  shift, and go to state 1
+    FUNC   shift, and go to state 2
+
+    $default  reduce using rule 1 (stmts)
+
+    stmts  go to state 11
+    stmt   go to state 4
+    let    go to state 5
+    call   go to state 6
+
+
+state 5
+
+    3 stmt: let . EOL
+
+    EOL  shift, and go to state 12
+
+
+state 6
+
+    4 stmt: call . EOL
+
+    EOL  shift, and go to state 13
+
+
+state 7
+
+    5 let: IDENT '=' . exp ';'
+
+    NUMBER  shift, and go to state 14
+    IDENT   shift, and go to state 15
+    STRING  shift, and go to state 16
+    '('     shift, and go to state 17
+
+    exp     go to state 18
+    factor  go to state 19
+
+
+state 8
+
+    6 call: IDENT '(' . explist ')' ';'
+
+    NUMBER  shift, and go to state 14
+    IDENT   shift, and go to state 15
+    STRING  shift, and go to state 16
+    '('     shift, and go to state 17
+
+    explist  go to state 20
+    exp      go to state 21
+    factor   go to state 19
+
+
+state 9
+
+    7 call: FUNC '(' . explist ')' ';'
+
+    NUMBER  shift, and go to state 14
+    IDENT   shift, and go to state 15
+    STRING  shift, and go to state 16
+    '('     shift, and go to state 17
+
+    explist  go to state 22
+    exp      go to state 21
+    factor   go to state 19
+
+
+state 10
+
+    0 $accept: stmts $end .
+
+    $default  accept
+
+
+state 11
+
+    2 stmts: stmt stmts .
+
+    $default  reduce using rule 2 (stmts)
+
+
+state 12
+
+    3 stmt: let EOL .
+
+    $default  reduce using rule 3 (stmt)
+
+
+state 13
+
+    4 stmt: call EOL .
+
+    $default  reduce using rule 4 (stmt)
+
+
+state 14
+
+   16 factor: NUMBER .
+
+    $default  reduce using rule 16 (factor)
+
+
+state 15
+
+   17 factor: IDENT .
+
+    $default  reduce using rule 17 (factor)
+
+
+state 16
+
+   18 factor: STRING .
+
+    $default  reduce using rule 18 (factor)
+
+
+state 17
+
+   15 factor: '(' . exp ')'
+
+    NUMBER  shift, and go to state 14
+    IDENT   shift, and go to state 15
+    STRING  shift, and go to state 16
+    '('     shift, and go to state 17
+
+    exp     go to state 23
+    factor  go to state 19
+
+
+state 18
+
+    5 let: IDENT '=' exp . ';'
+
+    ';'  shift, and go to state 24
+
+
+state 19
+
+   10 exp: factor .
+   11    | factor . '+' factor
+   12    | factor . '-' factor
+   13    | factor . '*' factor
+   14    | factor . '/' factor
+
+    '+'  shift, and go to state 25
+    '-'  shift, and go to state 26
+    '*'  shift, and go to state 27
+    '/'  shift, and go to state 28
+
+    $default  reduce using rule 10 (exp)
+
+
+state 20
+
+    6 call: IDENT '(' explist . ')' ';'
+
+    ')'  shift, and go to state 29
+
+
+state 21
+
+    8 explist: exp . ',' explist
+    9        | exp .
+
+    ','  shift, and go to state 30
+
+    $default  reduce using rule 9 (explist)
+
+
+state 22
+
+    7 call: FUNC '(' explist . ')' ';'
+
+    ')'  shift, and go to state 31
+
+
+state 23
+
+   15 factor: '(' exp . ')'
+
+    ')'  shift, and go to state 32
+
+
+state 24
+
+    5 let: IDENT '=' exp ';' .
+
+    $default  reduce using rule 5 (let)
+
+
+state 25
+
+   11 exp: factor '+' . factor
+
+    NUMBER  shift, and go to state 14
+    IDENT   shift, and go to state 15
+    STRING  shift, and go to state 16
+    '('     shift, and go to state 17
+
+    factor  go to state 33
+
+
+state 26
+
+   12 exp: factor '-' . factor
+
+    NUMBER  shift, and go to state 14
+    IDENT   shift, and go to state 15
+    STRING  shift, and go to state 16
+    '('     shift, and go to state 17
+
+    factor  go to state 34
+
+
+state 27
+
+   13 exp: factor '*' . factor
+
+    NUMBER  shift, and go to state 14
+    IDENT   shift, and go to state 15
+    STRING  shift, and go to state 16
+    '('     shift, and go to state 17
+
+    factor  go to state 35
+
+
+state 28
+
+   14 exp: factor '/' . factor
+
+    NUMBER  shift, and go to state 14
+    IDENT   shift, and go to state 15
+    STRING  shift, and go to state 16
+    '('     shift, and go to state 17
+
+    factor  go to state 36
+
+
+state 29
+
+    6 call: IDENT '(' explist ')' . ';'
+
+    ';'  shift, and go to state 37
+
+
+state 30
+
+    8 explist: exp ',' . explist
+
+    NUMBER  shift, and go to state 14
+    IDENT   shift, and go to state 15
+    STRING  shift, and go to state 16
+    '('     shift, and go to state 17
+
+    explist  go to state 38
+    exp      go to state 21
+    factor   go to state 19
+
+
+state 31
+
+    7 call: FUNC '(' explist ')' . ';'
+
+    ';'  shift, and go to state 39
+
+
+state 32
+
+   15 factor: '(' exp ')' .
+
+    $default  reduce using rule 15 (factor)
+
+
+state 33
+
+   11 exp: factor '+' factor .
+
+    $default  reduce using rule 11 (exp)
+
+
+state 34
+
+   12 exp: factor '-' factor .
+
+    $default  reduce using rule 12 (exp)
+
+
+state 35
+
+   13 exp: factor '*' factor .
+
+    $default  reduce using rule 13 (exp)
+
+
+state 36
+
+   14 exp: factor '/' factor .
+
+    $default  reduce using rule 14 (exp)
+
+
+state 37
+
+    6 call: IDENT '(' explist ')' ';' .
+
+    $default  reduce using rule 6 (call)
+
+
+state 38
+
+    8 explist: exp ',' explist .
+
+    $default  reduce using rule 8 (explist)
+
+
+state 39
+
+    7 call: FUNC '(' explist ')' ';' .
+
+    $default  reduce using rule 7 (call)

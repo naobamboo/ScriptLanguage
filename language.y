@@ -2,6 +2,8 @@
 #include <stdio.h>
 #include <string.h>
 #include "language.h"
+#define YYERROR_VERBOSE 1
+#define YYDEBUG 1
 
 extern int yylex(void);
 
@@ -12,37 +14,55 @@ int yywrap()
 %}
 
 %union {
-	struct ast* a;
 	int n;
+	char* str;
+	struct ast *a;
+	struct symbol *sym;
+	int fn;
 }
 
 %token <n> NUMBER
+%token <sym> IDENT
+%token <str> STRING
+%token <fn> FUNC
 %token EOL
-%type <a> factor
-%type <a> exp
+%type <a> factor exp explist let call stmt stmts
 
 %left '+' '-'
 %left '*' '/'
+%right '='
 
 %%
-lines
-	: line
-	| lines line
+stmts
+	: stmt
+	| stmt stmts
 	;
-
-line
-	: EOL
-	| exp EOL { printf("%d\n", eval($1)); }
+stmt
+	: let EOL { eval($1) }
+	| call EOL { eval($1) }
 	;
-
+let
+	: IDENT '=' exp ';'{ $$ = newasgn($1, $3); }
+	;
+call
+	: IDENT '(' explist ')' ';' { $$ = newcall($1, $3); }
+	| FUNC '(' explist ')' ';' { $$ = newfunc($1, $3); }
+	;
+explist
+	: exp ',' explist { $$ = newast(NODE_EXPLIST, NULL,  $1, $3); }
+	| exp
+	;
+exp
+	: factor
+	| factor '+' factor { $$ = newast(NODE_EXP, "+", $1, $3); }
+	| factor '-' factor { $$ = newast(NODE_EXP, "-", $1, $3); }
+	| factor '*' factor { $$ = newast(NODE_EXP, "*", $1, $3); }
+	| factor '/' factor { $$ = newast(NODE_EXP, "/", $1, $3); }
+	;
 factor
 	: '(' exp ')' { $$ = $2; }
 	| NUMBER { $$ = newnum($1); }
-	;
-exp
-	: factor '+' factor { $$ = newast(factor, "+", $1, $3); }
-	| factor '-' factor { $$ = newast(factor, "-", $1, $3); }
-	| factor '*' factor { $$ = newast(factor, "*", $1, $3); }
-	| factor '/' factor { $$ = newast(factor, "/", $1, $3); }
+	| IDENT { $$ = newref($1); }
+	| STRING { $$ = newast(NODE_STR, $1, NULL, NULL); }
 	;
 %%

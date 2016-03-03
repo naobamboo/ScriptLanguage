@@ -1,7 +1,7 @@
 all:
-	bison -d language.y
+	bison -d -v language.y
 	flex language.l
-	gcc -o language lex.yy.c language.tab.c language.c
+	gcc -g -O0 -o language lex.yy.c language.tab.c language.c
 
 clean:
 	rm language
