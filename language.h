@@ -1,5 +1,6 @@
 enum nodetype {
-	NODE_NUMBER = 1,
+	NODE_INT = 1,
+	NODE_FLOAT,
 	NODE_STR,
 	NODE_EXP,
 	NODE_EXPLIST,
@@ -13,13 +14,15 @@ enum nodetype {
 
 enum symboltype {
 	SYMBOL_NIL = 0,
-	SYMBOL_NUMBER,
+	SYMBOL_INT,
+	SYMBOL_FLOAT,
 	SYMBOL_STR
 };
 
 enum expresstype {
 		EXP_NIL = 1,
-    EXP_NUMBER,
+    EXP_INT,
+		EXP_FLOAT,
     EXP_STR
 };
 
@@ -32,6 +35,7 @@ struct symbol {
     char* name;
     union _su {
         int i;
+        double d;
         char* s;
     } su;
 };
@@ -40,6 +44,7 @@ typedef struct expression {
     enum expresstype etype;
     union _eu {
         int i;
+				double d;
         char* s;
         struct symbol *sym;
     } eu;
@@ -54,7 +59,10 @@ struct ast {
 
 struct numval {
 	enum nodetype ntype;
-	int number;
+	union _nu {
+		int i;
+		double d;
+	} nu;
 };
 
 struct symasgn {
@@ -94,7 +102,7 @@ struct symbol * lookup(char* sym);
 
 Expression eval(struct ast* a);
 struct ast* newast(enum nodetype type, char* contents, struct ast *l, struct ast *r);
-struct ast* newnum(int n);
+struct ast* newnum(char *s);
 struct ast* newref(struct symbol *sym);
 struct ast* newasgn(struct symbol *sym, struct ast *v);
 struct ast* newfunc(enum bifs ftype, struct ast *l);

@@ -10,12 +10,12 @@ extern FILE* yyin;
 void
 yyerror(char *s, ...)
 {
-	va_list ap;
-	va_start(ap, s);
+    va_list ap;
+    va_start(ap, s);
 
-	fprintf(stderr, "%d: error: ", yylineno);
-	vfprintf(stderr, s, ap);
-	fprintf(stderr, "\n");
+    fprintf(stderr, "%d: error: ", yylineno);
+    vfprintf(stderr, s, ap);
+    fprintf(stderr, "\n");
 }
 
 static unsigned
@@ -54,21 +54,26 @@ lookup(char* sym)
 struct ast*
 newast(enum nodetype ntype, char* contents, struct ast *l, struct ast *r)
 {
-	struct ast *a = malloc(sizeof(struct ast));
-	a->ntype = ntype;
-	a->contents = contents;
-	a->l = l;
-	a->r = r;
-	return a;
+    struct ast *a = malloc(sizeof(struct ast));
+    a->ntype = ntype;
+    a->contents = contents;
+    a->l = l;
+    a->r = r;
+    return a;
 }
 
 struct ast*
-newnum(int n)
+newnum(char* s)
 {
-	struct numval *a = malloc(sizeof(struct numval));
-	a->ntype = NODE_NUMBER;
-	a->number = n;
-	return (struct ast*)a;
+    struct numval *a = malloc(sizeof(struct numval));
+    if (!strchr (s, '.')) {
+        a->ntype = NODE_INT;
+        a->nu.i = atoi(s);
+    } else {
+        a->ntype = NODE_FLOAT;
+        a->nu.d = atof(s);
+    }
+    return (struct ast*)a;
 }
 
 struct ast*
@@ -136,43 +141,58 @@ newstmt(struct ast *l)
     return (struct ast *)a;
 }
 
+static void
+execbuiltin(enum bifs ftype, Expression exp)
+{
+    switch(ftype) {
+        case B_print:
+            switch (exp.etype) {
+                case EXP_INT:
+                    printf("%d", exp.eu.i);
+                    break;
+                case EXP_FLOAT:
+                    printf("%f", exp.eu.d);
+										break;
+                case EXP_STR:
+                    printf("%s", exp.eu.s);
+                    break;
+                case EXP_NIL:
+                    break;
+            }
+            printf("\n");
+        default:
+            break;
+    }
+}
+
 static Expression
 callbuiltin(struct fncall *f)
 {
     enum bifs ftype = f->ftype;
-		struct ast *args = f->l;
-		Expression ret = { EXP_NIL };
-		Expression *exp;
-		int i;
+    struct ast *args = f->l;
+    Expression ret = { EXP_NIL };
+    Expression exp;
+    int i = 0;
 
-		while(1) {
-			if(args->ntype == NODE_EXPLIST) {
-				exp[i++] = eval(args->l);
-				args = args->r;
-			} else {
-				exp[i++] = eval(args);
-				break;
-			}
-		} 
-		
-    switch(ftype) {
-        case B_print:
-					for (int j = 0; j <= i; j++) {
-						switch (exp[j].etype) {
-							case EXP_NUMBER:
-								printf("%d", exp[j].eu.i);
-								break;
-							case EXP_STR:
-                printf("%s", exp[j].eu.s);
-								break;
-							case EXP_NIL:
-								break;
-            }
-					}
-					printf("\n");
-					return ret;
+    while(1) {
+        if(args->ntype == NODE_EXPLIST) {
+            exp = eval(args->l);
+            execbuiltin(ftype, exp);
+            args = args->r;
+        } else {
+            exp = eval(args);
+            execbuiltin(ftype, exp);
+            break;
+        }
     }
-		return ret;
+    return ret;
+}
+
+static Expression
+calluser(struct ufncall *f)
+{
+    Expression exp;
+    return exp;
 }
 
 Expression
@@ -182,28 +202,76 @@ eval(struct ast *a)
     Expression left;
     Expression right;
     struct symbol *sym;
-	switch(a->ntype) {
-		case NODE_NUMBER:
-            exp.etype = EXP_NUMBER;
-            exp.eu.i = ((struct numval*)a)->number;
-			break;
-		case NODE_EXP:
-			left = eval(a->l);
-			right = eval(a->r);
-            exp.etype = EXP_NUMBER;
-			if (strcmp(a->contents, "+") == 0) {
-                exp.eu.i =  left.eu.i + right.eu.i;
+    switch(a->ntype) {
+        case NODE_INT:
+            exp.etype = EXP_INT;
+            exp.eu.i = ((struct numval*)a)->nu.i;
+            break;
+        case NODE_FLOAT:
+            exp.etype = EXP_FLOAT;
+            exp.eu.d = ((struct numval*)a)->nu.d;
+						break;
+        case NODE_EXP:
+            left = eval(a->l);
+            right = eval(a->r);
+            if (left.etype == EXP_INT && right.etype == EXP_INT) {
+                exp.etype = EXP_INT;
+                if (strcmp(a->contents, "+") == 0) {
+                    exp.eu.i = left.eu.i + right.eu.i;
+                }
+                if (strcmp(a->contents, "-") == 0) {
+                    exp.eu.i = left.eu.i - right.eu.i;
+                }
+                if (strcmp(a->contents, "*") == 0) {
+                    exp.eu.i = left.eu.i * right.eu.i;
+                }
+                if (strcmp(a->contents, "/") == 0) {
+                    exp.eu.i = left.eu.i / right.eu.i;
+                }
+            } else if (left.etype == EXP_INT && right.etype == EXP_FLOAT) {
+                exp.etype = EXP_FLOAT;
+                if (strcmp(a->contents, "+") == 0) {
+                    exp.eu.d = (double)left.eu.i + right.eu.d;
+                }
+                if (strcmp(a->contents, "-") == 0) {
+                    exp.eu.d = (double)left.eu.i - right.eu.d;
+                }
+                if (strcmp(a->contents, "*") == 0) {
+                    exp.eu.d = (double)left.eu.i * right.eu.d;
+                }
+                if (strcmp(a->contents, "/") == 0) {
+                    exp.eu.d = (double)left.eu.i / right.eu.d;
+                }
+            } else if (left.etype == EXP_FLOAT && right.etype == EXP_INT) {
+                exp.etype = EXP_FLOAT;
+                if (strcmp(a->contents, "+") == 0) {
+                    exp.eu.d = left.eu.d + (double)right.eu.i;
+                }
+                if (strcmp(a->contents, "-") == 0) {
+                    exp.eu.d = left.eu.d - (double)right.eu.i;
+                }
+                if (strcmp(a->contents, "*") == 0) {
+                    exp.eu.d = left.eu.d * (double)right.eu.i;
+                }
+                if (strcmp(a->contents, "/") == 0) {
+                    exp.eu.d = left.eu.d / (double)right.eu.i;
+                }
+            } else if (left.etype == EXP_FLOAT && right.etype == EXP_FLOAT) {
+                exp.etype = EXP_FLOAT;
+                if (strcmp(a->contents, "+") == 0) {
+                    exp.eu.d = left.eu.d + right.eu.d;
+                }
+                if (strcmp(a->contents, "-") == 0) {
+                    exp.eu.d = left.eu.d - right.eu.d;
+                }
+                if (strcmp(a->contents, "*") == 0) {
+                    exp.eu.d = left.eu.d * right.eu.d;
+                }
+                if (strcmp(a->contents, "/") == 0) {
+                    exp.eu.d = left.eu.d / right.eu.d;
+                }
             }
-			if (strcmp(a->contents, "-") == 0) {
-                exp.eu.i =  left.eu.i - right.eu.i;
-            }
-			if (strcmp(a->contents, "*") == 0) {
-                exp.eu.i =  left.eu.i * right.eu.i;
-            }
-			if (strcmp(a->contents, "/") == 0) {
-                exp.eu.i =  left.eu.i / right.eu.i;
-            }
-			break;
+            break;
         case NODE_STR:
             exp.etype = EXP_STR;
             size_t l = strlen(a->contents) - 4;
@@ -213,9 +281,12 @@ eval(struct ast *a)
             break;
         case NODE_LET:
             exp = eval(((struct symasgn *)a)->v);
-            if (exp.etype == EXP_NUMBER) {
-                ((struct symasgn *)a)->sym->stype = SYMBOL_NUMBER;
+            if (exp.etype == EXP_INT) {
+                ((struct symasgn *)a)->sym->stype = SYMBOL_INT;
                 ((struct symasgn *)a)->sym->su.i = exp.eu.i;
+            } else if (exp.etype == EXP_FLOAT) {
+                ((struct symasgn *)a)->sym->stype = SYMBOL_FLOAT;
+                ((struct symasgn *)a)->sym->su.d = exp.eu.d;
             } else if (exp.etype == EXP_STR) {
                 ((struct symasgn *)a)->sym->stype = SYMBOL_STR;
                 ((struct symasgn *)a)->sym->su.s = exp.eu.s;
@@ -225,9 +296,13 @@ eval(struct ast *a)
         case NODE_SYMBOL:
             sym = ((struct symref *)a)->sym;
             switch (sym->stype) {
-                case SYMBOL_NUMBER:
-                    exp.etype = EXP_NUMBER;
+                case SYMBOL_INT:
+                    exp.etype = EXP_INT;
                     exp.eu.i = sym->su.i;
+                    break;
+                case SYMBOL_FLOAT:
+                    exp.etype = EXP_FLOAT;
+                    exp.eu.d = sym->su.d;
                     break;
                 case SYMBOL_STR:
                     exp.etype = EXP_STR;
@@ -241,10 +316,11 @@ eval(struct ast *a)
             eval(a->l);
             exp = eval(a->r);
             break;
-        case NODE_CALL:
-            break;
         case NODE_FUNC:
             exp = callbuiltin((struct fncall *)a);
+            break;
+        case NODE_CALL:
+            exp = calluser((struct ufncall *)a);
             break;
         case NODE_STMT:
             exp = eval(a->l);
@@ -253,16 +329,16 @@ eval(struct ast *a)
             eval(a->l);
             exp = eval(a->r);
             break;
-	}
-	return exp;
+    }
+    return exp;
 }
 
 int
 main()
 {
-	if ((yyin = fopen("./input.txt", "r")) == NULL) {
-		fprintf(stderr, "Can't open a input file\n");
-		return 1;
-	}
-	return yyparse();
+    if ((yyin = fopen("./input.txt", "r")) == NULL) {
+        fprintf(stderr, "Can't open a input file\n");
+        return 1;
+    }
+    return yyparse();
 }

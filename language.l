@@ -6,7 +6,8 @@
 %}
 
 %%
--?[0-9]+ { yylval.n = atoi(yytext); return NUMBER; }
+-?[0-9]+"."[0-9]+ { yylval.str = yytext; return NUMBER; }
+-?[0-9]+ { yylval.str = yytext; return NUMBER; }
 "println" { yylval.fn = B_print; return FUNC; }
 [a-zA-Z][a-zA-Z0-9_]* { yylval.sym = lookup(yytext); return IDENT; }
 \"[^\"]*\" { yylval.str = yytext; return STRING; }

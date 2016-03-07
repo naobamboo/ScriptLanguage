@@ -14,14 +14,13 @@ int yywrap()
 %}
 
 %union {
-	int n;
 	char* str;
 	struct ast *a;
 	struct symbol *sym;
 	int fn;
 }
 
-%token <n> NUMBER
+%token <str> NUMBER
 %token <sym> IDENT
 %token <str> STRING
 %token <fn> FUNC
