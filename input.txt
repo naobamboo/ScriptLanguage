@@ -4,5 +4,4 @@ b = 2 * (3 + 5);
 c = b + 1;
 d = b;
 e = "Script Test";
-println(a);
-println(e);
+println(a, e);

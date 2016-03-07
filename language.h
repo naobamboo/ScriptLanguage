@@ -1,26 +1,26 @@
 enum nodetype {
 	NODE_NUMBER = 1,
-    NODE_STR,
+	NODE_STR,
 	NODE_EXP,
-    NODE_EXPLIST,
-    NODE_SYMBOL,
-    NODE_LET,
-    NODE_FUNC,
-    NODE_CALL,
-    NODE_STMT,
-    NODE_STMTS
+	NODE_EXPLIST,
+	NODE_SYMBOL,
+	NODE_LET,
+	NODE_FUNC,
+	NODE_CALL,
+	NODE_STMT,
+	NODE_STMTS
 };
 
 enum symboltype {
-    SYMBOL_NIL = 0,
-    SYMBOL_NUMBER,
-    SYMBOL_STR
+	SYMBOL_NIL = 0,
+	SYMBOL_NUMBER,
+	SYMBOL_STR
 };
 
 enum expresstype {
-    EXP_NUMBER = 1,
-    EXP_STR,
-    EXP_SYM
+		EXP_NIL = 1,
+    EXP_NUMBER,
+    EXP_STR
 };
 
 enum bifs {

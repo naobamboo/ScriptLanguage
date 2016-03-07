@@ -140,18 +140,39 @@ static Expression
 callbuiltin(struct fncall *f)
 {
     enum bifs ftype = f->ftype;
-    Expression exp = eval(f->l);
+		struct ast *args = f->l;
+		Expression ret = { EXP_NIL };
+		Expression *exp;
+		int i;
 
+		while(1) {
+			if(args->ntype == NODE_EXPLIST) {
+				exp[i++] = eval(args->l);
+				args = args->r;
+			} else {
+				exp[i++] = eval(args);
+				break;
+			}
+		} 
+		
     switch(ftype) {
         case B_print:
-            if(exp.etype == EXP_NUMBER) {
-                printf("%d\n", exp.eu.i);
-            } else if (exp.etype == EXP_STR) {
-                printf("%s\n", exp.eu.s);
+					for (int j = 0; j <= i; j++) {
+						switch (exp[j].etype) {
+							case EXP_NUMBER:
+								printf("%d", exp[j].eu.i);
+								break;
+							case EXP_STR:
+                printf("%s", exp[j].eu.s);
+								break;
+							case EXP_NIL:
+								break;
             }
-            break;
+					}
+					printf("\n");
+					return ret;
     }
-    return exp;
+		return ret;
 }
 
 Expression
