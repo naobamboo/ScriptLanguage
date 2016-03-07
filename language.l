@@ -7,6 +7,10 @@
 
 %%
 -?[0-9]+ { yylval.n = atoi(yytext); return NUMBER; }
+"println" { yylval.fn = B_print; return FUNC; }
+[a-zA-Z][a-zA-Z0-9_]* { yylval.sym = lookup(yytext); return IDENT; }
+\"[^\"]*\" { yylval.str = yytext; return STRING; }
+"//"[^\n]*\n /* ignore one line comment */
 "+" |
 "-" |
 "*" |
@@ -17,9 +21,6 @@
 ";" |
 "(" |
 ")" { return yytext[0]; }
-"println" { yylval.fn = B_print; return FUNC; }
-[a-zA-Z][a-zA-Z0-9_]* { yylval.sym = lookup(yytext); return IDENT; }
-\"[^\"]*\" { yylval.str = yytext; return STRING; }
 [ \t] /* ignore white space */
 "\n" { return EOL; }
 . { yyerror("Mystery character %c\n", *yytext); }
