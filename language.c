@@ -56,7 +56,15 @@ newast(enum nodetype ntype, char* contents, struct ast *l, struct ast *r)
 {
     struct ast *a = malloc(sizeof(struct ast));
     a->ntype = ntype;
-    a->contents = contents;
+		if (ntype == NODE_STR) {
+			size_t len = strlen(contents) - 2;
+			char* str = calloc(1, len + 1);
+			strncpy(str, contents + 1, len);
+			str[len] = 0;
+			a->contents = str;
+		} else {
+			a->contents = contents;
+		}
     a->l = l;
     a->r = r;
     return a;
@@ -141,28 +149,31 @@ newstmt(struct ast *l)
     return (struct ast *)a;
 }
 
-static void
-execbuiltin(enum bifs ftype, Expression exp)
+	static void
+execbuiltin(enum bifs ftype, Expression *exp, int nargs)
 {
-    switch(ftype) {
-        case B_print:
-            switch (exp.etype) {
-                case EXP_INT:
-                    printf("%d", exp.eu.i);
-                    break;
-                case EXP_FLOAT:
-                    printf("%f", exp.eu.d);
-										break;
-                case EXP_STR:
-                    printf("%s", exp.eu.s);
-                    break;
-                case EXP_NIL:
-                    break;
-            }
-            printf("\n");
-        default:
-            break;
-    }
+	switch(ftype) {
+		case B_print:
+			for(int i = 0; i < nargs; i++) {
+				switch (exp[i].etype) {
+					case EXP_INT:
+						printf("%d", exp[i].eu.i);
+						break;
+					case EXP_FLOAT:
+						printf("%f", exp[i].eu.d);
+						break;
+					case EXP_STR:
+						printf("%s", exp[i].eu.s);
+						break;
+					case EXP_NIL:
+						break;
+				}
+			}
+			printf("\n");
+			break;
+		default:
+			break;
+	}
 }
 
 static Expression
@@ -171,20 +182,35 @@ callbuiltin(struct fncall *f)
     enum bifs ftype = f->ftype;
     struct ast *args = f->l;
     Expression ret = { EXP_NIL };
-    Expression exp;
-    int i = 0;
+		Expression *exp2;
+    int  nargs = 0;
+		int i = 0;
 
     while(1) {
         if(args->ntype == NODE_EXPLIST) {
-            exp = eval(args->l);
-            execbuiltin(ftype, exp);
             args = args->r;
+						++nargs;
         } else {
-            exp = eval(args);
-            execbuiltin(ftype, exp);
-            break;
+					++nargs;
+          break;
         }
     }
+
+		Expression exp[nargs];
+		if (nargs > 0) {
+			args = f->l;
+			while(1) {
+				if(args->ntype == NODE_EXPLIST) {
+					exp[i] = eval(args->l);
+					args = args->r;
+					i++;
+				} else {
+					exp[i] = eval(args);
+					break;
+				}
+			}
+		}
+		execbuiltin(ftype, exp, nargs);
     return ret;
 }
 
@@ -274,10 +300,7 @@ eval(struct ast *a)
             break;
         case NODE_STR:
             exp.etype = EXP_STR;
-            size_t l = strlen(a->contents) - 4;
-            exp.eu.s = calloc(1, l + 1);
-            strncpy(exp.eu.s, a->contents + 1, l);
-            exp.eu.s[l] = 0;
+						exp.eu.s = a->contents;
             break;
         case NODE_LET:
             exp = eval(((struct symasgn *)a)->v);

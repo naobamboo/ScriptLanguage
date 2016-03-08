@@ -7,4 +7,4 @@ d = 1 - 4.5;
 e = 1 / 3;
 f = 1.0 / 3;
 g = "Script Test";
-println(a, b, c, d, e, f, g);
+println("oh", a, b, c, d, e, f, g);
