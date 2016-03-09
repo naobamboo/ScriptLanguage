@@ -8,6 +8,7 @@ enum nodetype {
 	NODE_LET,
 	NODE_FUNC,
 	NODE_CALL,
+	NODE_WHILE,
 	NODE_STMT,
 	NODE_STMTS
 };
@@ -20,10 +21,10 @@ enum symboltype {
 };
 
 enum expresstype {
-		EXP_NIL = 1,
-    EXP_INT,
-		EXP_FLOAT,
-    EXP_STR
+	EXP_NIL = 1,
+	EXP_INT,
+	EXP_FLOAT,
+	EXP_STR
 };
 
 enum bifs {
@@ -76,6 +77,13 @@ struct symref {
     struct symbol *sym;
 };
 
+struct flow {
+	enum nodetype ntype;
+	struct ast *cond;
+	struct ast *tl;
+	struct ast *el;
+};
+
 struct fncall {
     enum nodetype ntype;
     struct ast *l;
@@ -93,6 +101,12 @@ struct stmt {
     struct ast *l;
 };
 
+struct stmts {
+	enum nodetype ntype;
+	struct ast *l;
+	struct ast *r;
+};
+
 extern int yylineno;
 void yyerror(char *s, ...);
 
@@ -101,10 +115,12 @@ struct symbol symtab[NHASH];
 struct symbol * lookup(char* sym);
 
 Expression eval(struct ast* a);
-struct ast* newast(enum nodetype type, char* contents, struct ast *l, struct ast *r);
-struct ast* newnum(char *s);
-struct ast* newref(struct symbol *sym);
-struct ast* newasgn(struct symbol *sym, struct ast *v);
-struct ast* newfunc(enum bifs ftype, struct ast *l);
-struct ast* newcall(struct symbol *s,  struct ast *l);
-struct ast* newstmt(struct ast *l);
+struct ast *newast(enum nodetype type, char* contents, struct ast *l, struct ast *r);
+struct ast *newnum(char *s);
+struct ast *newref(struct symbol *sym);
+struct ast *newasgn(struct symbol *sym, struct ast *v);
+struct ast *newfunc(enum bifs ftype, struct ast *l);
+struct ast *newcall(struct symbol *s,  struct ast *l);
+struct ast *newstmt(struct ast *l);
+struct ast *newstmts(struct ast *l, struct ast *r);
+struct ast *newflow(enum nodetype ntype, struct ast *cond, struct ast *tl, struct ast *el);

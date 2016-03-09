@@ -24,21 +24,27 @@ int yywrap()
 %token <sym> IDENT
 %token <str> STRING
 %token <fn> FUNC
+%token WHILE
 %token EOL
-%type <a> factor exp explist let call stmt stmts
+/*%token END_OF_FILE*/
+%type <a> factor exp explist let call stmt stmts program
 
 %left '+' '-'
 %left '*' '/'
 %right '='
 
 %%
-stmts
+program
+	: stmts { eval($1); }
+	;
+stmts 
 	: stmt
-	| stmt stmts
+	| stmt stmts { $$ = newast(NODE_STMTS, NULL,  $1, $2); }
 	;
 stmt
-	: let EOL { eval($1) }
-	| call EOL { eval($1) }
+	: let 
+	| call
+	| WHILE '(' exp ')' '{' stmts '}' { $$ = newflow(NODE_WHILE, $3, $6, NULL); }
 	;
 let
 	: IDENT '=' exp ';'{ $$ = newasgn($1, $3); }

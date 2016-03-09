@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include <string.h>
 #include <stdarg.h>
 #include "language.h"
@@ -21,12 +22,12 @@ yyerror(char *s, ...)
 static unsigned
 symhash(char *sym)
 {
-    unsigned int hash = 0;
-    unsigned c;
+	unsigned int hash = 0;
+	unsigned c;
 
-    while(c == *sym++) hash = hash*9 ^c;
+	while(c == *sym++) hash = hash*9 ^c;
 
-    return hash;
+	return hash;
 }
 
 struct symbol *
@@ -133,6 +134,10 @@ struct ast*
 newcall(struct symbol *sym, struct ast *l)
 {
     struct ufncall *a = malloc(sizeof(struct ufncall));
+    if(!a) {
+        yyerror("out of space");
+        exit(0);
+    }
 
     a->ntype = NODE_CALL;
     a->l = l;
@@ -144,12 +149,45 @@ struct ast*
 newstmt(struct ast *l)
 {
     struct stmt *a = malloc(sizeof(struct stmt));
+    if(!a) {
+        yyerror("out of space");
+        exit(0);
+    }
     a->ntype = NODE_STMT;
     a->l = l;
     return (struct ast *)a;
 }
 
-	static void
+struct ast*
+newstmts(struct ast *l, struct ast *r)
+{
+	struct stmts *a = malloc(sizeof(struct stmts));
+    if(!a) {
+        yyerror("out of space");
+        exit(0);
+    }
+	a->ntype = NODE_STMTS;
+	a->l = l;
+	a->r = r;
+	return (struct ast *)a;
+}
+
+struct ast*
+newflow(enum nodetype ntype, struct ast *cond, struct ast *tl, struct ast *el)
+{
+	struct flow *a = malloc(sizeof(struct flow));
+	if(!a) {
+		yyerror("out of space");
+		exit(0);
+	}
+	a->ntype = ntype;
+	a->cond = cond;
+	a->tl = tl;
+	a->el = el;
+	return (struct ast *)a;
+}
+
+static void
 execbuiltin(enum bifs ftype, Expression *exp, int nargs)
 {
 	switch(ftype) {
@@ -221,12 +259,35 @@ calluser(struct ufncall *f)
     return exp;
 }
 
+static bool
+expToBool(Expression exp) {
+	bool judge = true;
+	switch(exp.etype) {
+		case EXP_NIL:
+			judge = false;
+			break;
+		case EXP_INT:
+			if (exp.eu.i <= 0) judge = false;
+			break;
+		case EXP_FLOAT:
+			if (exp.eu.d <= 0) judge = false;
+			break;
+		case EXP_STR:
+			if (exp.eu.s == NULL) judge = false;
+			break;
+		default:
+			break;
+	}
+	return judge;
+}
+
 Expression
 eval(struct ast *a)
 {
     Expression exp;
     Expression left;
     Expression right;
+	Expression cond;
     struct symbol *sym;
     switch(a->ntype) {
         case NODE_INT:
@@ -300,7 +361,7 @@ eval(struct ast *a)
             break;
         case NODE_STR:
             exp.etype = EXP_STR;
-						exp.eu.s = a->contents;
+			exp.eu.s = a->contents;
             break;
         case NODE_LET:
             exp = eval(((struct symasgn *)a)->v);
@@ -345,12 +406,17 @@ eval(struct ast *a)
         case NODE_CALL:
             exp = calluser((struct ufncall *)a);
             break;
+		case NODE_STMTS:
+			eval(a->l);
+			exp = eval(a->r);
+			break;
+		case NODE_WHILE:
+			while( expToBool(eval(((struct flow *)a)->cond))) {
+				exp = eval(((struct flow *)a)->tl);
+			}
+			break;
         case NODE_STMT:
             exp = eval(a->l);
-            break;
-        case NODE_STMTS:
-            eval(a->l);
-            exp = eval(a->r);
             break;
     }
     return exp;
