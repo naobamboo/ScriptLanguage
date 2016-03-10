@@ -9,7 +9,9 @@ enum nodetype {
 	NODE_FUNC,
 	NODE_CALL,
 	NODE_WHILE,
-	NODE_STMT,
+	NODE_IF,
+	NODE_ELSE,
+	NODE_SELECT,
 	NODE_STMTS
 };
 
@@ -96,17 +98,6 @@ struct ufncall {
     struct symbol *sym;
 };
 
-struct stmt {
-    enum nodetype ntype;
-    struct ast *l;
-};
-
-struct stmts {
-	enum nodetype ntype;
-	struct ast *l;
-	struct ast *r;
-};
-
 extern int yylineno;
 void yyerror(char *s, ...);
 
@@ -121,6 +112,4 @@ struct ast *newref(struct symbol *sym);
 struct ast *newasgn(struct symbol *sym, struct ast *v);
 struct ast *newfunc(enum bifs ftype, struct ast *l);
 struct ast *newcall(struct symbol *s,  struct ast *l);
-struct ast *newstmt(struct ast *l);
-struct ast *newstmts(struct ast *l, struct ast *r);
 struct ast *newflow(enum nodetype ntype, struct ast *cond, struct ast *tl, struct ast *el);

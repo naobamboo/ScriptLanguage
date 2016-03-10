@@ -25,9 +25,10 @@ int yywrap()
 %token <str> STRING
 %token <fn> FUNC
 %token WHILE
-%token EOL
-/*%token END_OF_FILE*/
-%type <a> factor exp explist let call stmt stmts program
+%token IF
+%token ELSE
+%token ELSIF
+%type <a> factor exp explist let call if else elsif elsiflist elselist ifstmt stmt stmts program
 
 %left '+' '-'
 %left '*' '/'
@@ -44,7 +45,8 @@ stmts
 stmt
 	: let 
 	| call
-	| WHILE '(' exp ')' '{' stmts '}' { $$ = newflow(NODE_WHILE, $3, $6, NULL); }
+	| WHILE '(' exp ')' '{' stmts '}' { $$ = newast(NODE_WHILE, NULL, $3, $6); }
+	| ifstmt
 	;
 let
 	: IDENT '=' exp ';'{ $$ = newasgn($1, $3); }
@@ -52,6 +54,28 @@ let
 call
 	: IDENT '(' explist ')' ';' { $$ = newcall($1, $3); }
 	| FUNC '(' explist ')' ';' { $$ = newfunc($1, $3); }
+	;
+ifstmt
+	: if
+	| if elselist { $$ = newast(NODE_SELECT, NULL, $1, $2); } 
+	;
+elselist
+	: elsiflist
+	| else
+	| elsiflist else { $$ = newast(NODE_SELECT, NULL, $1, $2); }
+	;
+elsiflist
+	: elsif
+	| elsif elsiflist { $$ = newast(NODE_SELECT, NULL, $1, $2); }
+	;
+elsif
+	: ELSIF '(' exp ')' '{' stmts '}' { $$ = newast(NODE_IF, NULL, $3, $6); }
+	;
+else
+	: ELSE '{' stmts '}' { $$ = newast(NODE_ELSE, NULL, NULL, $3); }
+	;
+if
+	: IF '(' exp ')' '{' stmts '}' { $$ = newast(NODE_IF, NULL, $3, $6); }
 	;
 explist
 	: exp ',' explist { $$ = newast(NODE_EXPLIST, NULL,  $1, $3); }

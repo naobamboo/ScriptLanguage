@@ -7,6 +7,9 @@
 
 %%
 "while" { return WHILE; }
+"elsif" { return ELSIF; }
+"if" { return IF; }
+"else" { return ELSE; }
 -?[0-9]+"."[0-9]+ { yylval.str = yytext; return NUMBER; }
 -?[0-9]+ { yylval.str = yytext; return NUMBER; }
 "println" { yylval.fn = B_print; return FUNC; }
