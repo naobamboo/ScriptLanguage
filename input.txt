@@ -23,3 +23,7 @@ if (1) {
 } else {
 	println("else");
 }
+
+function test() {
+	println("hi");
+}

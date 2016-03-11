@@ -8,6 +8,7 @@
 %%
 "while" { return WHILE; }
 "elsif" { return ELSIF; }
+"function" { return DECLARE; }
 "if" { return IF; }
 "else" { return ELSE; }
 -?[0-9]+"."[0-9]+ { yylval.str = yytext; return NUMBER; }
