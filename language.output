@@ -9,772 +9,961 @@ Grammar
 
     4 stmt: let
     5     | call
-    6     | WHILE '(' exp ')' '{' stmts '}'
-    7     | ifstmt
+    6     | declare
+    7     | WHILE '(' exp ')' '{' stmts '}'
+    8     | ifstmt
 
-    8 let: IDENT '=' exp ';'
+    9 let: IDENT '=' exp ';'
 
-    9 call: IDENT '(' explist ')' ';'
-   10     | FUNC '(' explist ')' ';'
+   10 call: IDENT '(' explist ')' ';'
+   11     | IDENT '(' ')' ';'
+   12     | FUNC '(' explist ')' ';'
 
-   11 ifstmt: if
-   12       | if elselist
+   13 declare: DECLARE IDENT '(' symlist ')' '{' stmts '}'
+   14        | DECLARE IDENT '(' ')' '{' stmts '}'
 
-   13 elselist: elsiflist
-   14         | else
-   15         | elsiflist else
+   15 ifstmt: if
+   16       | if elselist
 
-   16 elsiflist: elsif
-   17          | elsif elsiflist
+   17 elselist: elsiflist
+   18         | else
+   19         | elsiflist else
 
-   18 elsif: ELSIF '(' exp ')' '{' stmts '}'
+   20 elsiflist: elsif
+   21          | elsif elsiflist
 
-   19 else: ELSE '{' stmts '}'
+   22 elsif: ELSIF '(' exp ')' '{' stmts '}'
 
-   20 if: IF '(' exp ')' '{' stmts '}'
+   23 else: ELSE '{' stmts '}'
 
-   21 explist: exp ',' explist
-   22        | exp
+   24 if: IF '(' exp ')' '{' stmts '}'
 
-   23 exp: factor
-   24    | factor '+' factor
-   25    | factor '-' factor
-   26    | factor '*' factor
-   27    | factor '/' factor
+   25 symlist: IDENT
+   26        | IDENT ',' symlist
 
-   28 factor: '(' exp ')'
-   29       | NUMBER
-   30       | IDENT
-   31       | STRING
+   27 explist: exp ',' explist
+   28        | exp
+
+   29 exp: factor
+   30    | factor '+' factor
+   31    | factor '-' factor
+   32    | factor '*' factor
+   33    | factor '/' factor
+
+   34 factor: '(' exp ')'
+   35       | NUMBER
+   36       | IDENT
+   37       | STRING
 
 
 Terminals, with rules where they appear
 
 $end (0) 0
-'(' (40) 6 9 10 18 20 28
-')' (41) 6 9 10 18 20 28
-'*' (42) 26
-'+' (43) 24
-',' (44) 21
-'-' (45) 25
-'/' (47) 27
-';' (59) 8 9 10
-'=' (61) 8
-'{' (123) 6 18 19 20
-'}' (125) 6 18 19 20
+'(' (40) 7 10 11 12 13 14 22 24 34
+')' (41) 7 10 11 12 13 14 22 24 34
+'*' (42) 32
+'+' (43) 30
+',' (44) 26 27
+'-' (45) 31
+'/' (47) 33
+';' (59) 9 10 11 12
+'=' (61) 9
+'{' (123) 7 13 14 22 23 24
+'}' (125) 7 13 14 22 23 24
 error (256)
-NUMBER (258) 29
-IDENT (259) 8 9 30
-STRING (260) 31
-FUNC (261) 10
-WHILE (262) 6
-IF (263) 20
-ELSE (264) 19
-ELSIF (265) 18
+NUMBER (258) 35
+IDENT (259) 9 10 11 13 14 25 26 36
+STRING (260) 37
+FUNC (261) 12
+WHILE (262) 7
+IF (263) 24
+ELSE (264) 23
+ELSIF (265) 22
+DECLARE (266) 13 14
 
 
 Nonterminals, with rules where they appear
 
-$accept (22)
+$accept (23)
     on left: 0
-program (23)
+program (24)
     on left: 1, on right: 0
-stmts (24)
-    on left: 2 3, on right: 1 3 6 18 19 20
-stmt (25)
-    on left: 4 5 6 7, on right: 2 3
-let (26)
-    on left: 8, on right: 4
-call (27)
-    on left: 9 10, on right: 5
-ifstmt (28)
-    on left: 11 12, on right: 7
-elselist (29)
-    on left: 13 14 15, on right: 12
-elsiflist (30)
-    on left: 16 17, on right: 13 15 17
-elsif (31)
-    on left: 18, on right: 16 17
-else (32)
-    on left: 19, on right: 14 15
-if (33)
-    on left: 20, on right: 11 12
-explist (34)
-    on left: 21 22, on right: 9 10 21
-exp (35)
-    on left: 23 24 25 26 27, on right: 6 8 18 20 21 22 28
-factor (36)
-    on left: 28 29 30 31, on right: 23 24 25 26 27
+stmts (25)
+    on left: 2 3, on right: 1 3 7 13 14 22 23 24
+stmt (26)
+    on left: 4 5 6 7 8, on right: 2 3
+let (27)
+    on left: 9, on right: 4
+call (28)
+    on left: 10 11 12, on right: 5
+declare (29)
+    on left: 13 14, on right: 6
+ifstmt (30)
+    on left: 15 16, on right: 8
+elselist (31)
+    on left: 17 18 19, on right: 16
+elsiflist (32)
+    on left: 20 21, on right: 17 19 21
+elsif (33)
+    on left: 22, on right: 20 21
+else (34)
+    on left: 23, on right: 18 19
+if (35)
+    on left: 24, on right: 15 16
+symlist (36)
+    on left: 25 26, on right: 13 26
+explist (37)
+    on left: 27 28, on right: 10 12 27
+exp (38)
+    on left: 29 30 31 32 33, on right: 7 9 22 24 27 28 34
+factor (39)
+    on left: 34 35 36 37, on right: 29 30 31 32 33
 
 
 state 0
 
     0 $accept: . program $end
 
-    IDENT  shift, and go to state 1
-    FUNC   shift, and go to state 2
-    WHILE  shift, and go to state 3
-    IF     shift, and go to state 4
+    IDENT    shift, and go to state 1
+    FUNC     shift, and go to state 2
+    WHILE    shift, and go to state 3
+    IF       shift, and go to state 4
+    DECLARE  shift, and go to state 5
 
-    program  go to state 5
-    stmts    go to state 6
-    stmt     go to state 7
-    let      go to state 8
-    call     go to state 9
-    ifstmt   go to state 10
-    if       go to state 11
+    program  go to state 6
+    stmts    go to state 7
+    stmt     go to state 8
+    let      go to state 9
+    call     go to state 10
+    declare  go to state 11
+    ifstmt   go to state 12
+    if       go to state 13
 
 
 state 1
 
-    8 let: IDENT . '=' exp ';'
-    9 call: IDENT . '(' explist ')' ';'
+    9 let: IDENT . '=' exp ';'
+   10 call: IDENT . '(' explist ')' ';'
+   11     | IDENT . '(' ')' ';'
 
-    '='  shift, and go to state 12
-    '('  shift, and go to state 13
+    '='  shift, and go to state 14
+    '('  shift, and go to state 15
 
 
 state 2
 
-   10 call: FUNC . '(' explist ')' ';'
-
-    '('  shift, and go to state 14
-
-
-state 3
-
-    6 stmt: WHILE . '(' exp ')' '{' stmts '}'
-
-    '('  shift, and go to state 15
-
-
-state 4
-
-   20 if: IF . '(' exp ')' '{' stmts '}'
+   12 call: FUNC . '(' explist ')' ';'
 
     '('  shift, and go to state 16
 
 
+state 3
+
+    7 stmt: WHILE . '(' exp ')' '{' stmts '}'
+
+    '('  shift, and go to state 17
+
+
+state 4
+
+   24 if: IF . '(' exp ')' '{' stmts '}'
+
+    '('  shift, and go to state 18
+
+
 state 5
 
-    0 $accept: program . $end
+   13 declare: DECLARE . IDENT '(' symlist ')' '{' stmts '}'
+   14        | DECLARE . IDENT '(' ')' '{' stmts '}'
 
-    $end  shift, and go to state 17
+    IDENT  shift, and go to state 19
 
 
 state 6
+
+    0 $accept: program . $end
+
+    $end  shift, and go to state 20
+
+
+state 7
 
     1 program: stmts .
 
     $default  reduce using rule 1 (program)
 
 
-state 7
+state 8
 
     2 stmts: stmt .
     3      | stmt . stmts
 
-    IDENT  shift, and go to state 1
-    FUNC   shift, and go to state 2
-    WHILE  shift, and go to state 3
-    IF     shift, and go to state 4
+    IDENT    shift, and go to state 1
+    FUNC     shift, and go to state 2
+    WHILE    shift, and go to state 3
+    IF       shift, and go to state 4
+    DECLARE  shift, and go to state 5
 
     $default  reduce using rule 2 (stmts)
 
-    stmts   go to state 18
-    stmt    go to state 7
-    let     go to state 8
-    call    go to state 9
-    ifstmt  go to state 10
-    if      go to state 11
+    stmts    go to state 21
+    stmt     go to state 8
+    let      go to state 9
+    call     go to state 10
+    declare  go to state 11
+    ifstmt   go to state 12
+    if       go to state 13
 
 
-state 8
+state 9
 
     4 stmt: let .
 
     $default  reduce using rule 4 (stmt)
 
 
-state 9
+state 10
 
     5 stmt: call .
 
     $default  reduce using rule 5 (stmt)
 
 
-state 10
-
-    7 stmt: ifstmt .
-
-    $default  reduce using rule 7 (stmt)
-
-
 state 11
 
-   11 ifstmt: if .
-   12       | if . elselist
+    6 stmt: declare .
 
-    ELSE   shift, and go to state 19
-    ELSIF  shift, and go to state 20
-
-    $default  reduce using rule 11 (ifstmt)
-
-    elselist   go to state 21
-    elsiflist  go to state 22
-    elsif      go to state 23
-    else       go to state 24
+    $default  reduce using rule 6 (stmt)
 
 
 state 12
 
-    8 let: IDENT '=' . exp ';'
+    8 stmt: ifstmt .
 
-    NUMBER  shift, and go to state 25
-    IDENT   shift, and go to state 26
-    STRING  shift, and go to state 27
-    '('     shift, and go to state 28
-
-    exp     go to state 29
-    factor  go to state 30
+    $default  reduce using rule 8 (stmt)
 
 
 state 13
 
-    9 call: IDENT '(' . explist ')' ';'
+   15 ifstmt: if .
+   16       | if . elselist
 
-    NUMBER  shift, and go to state 25
-    IDENT   shift, and go to state 26
-    STRING  shift, and go to state 27
-    '('     shift, and go to state 28
+    ELSE   shift, and go to state 22
+    ELSIF  shift, and go to state 23
 
-    explist  go to state 31
-    exp      go to state 32
-    factor   go to state 30
+    $default  reduce using rule 15 (ifstmt)
+
+    elselist   go to state 24
+    elsiflist  go to state 25
+    elsif      go to state 26
+    else       go to state 27
 
 
 state 14
 
-   10 call: FUNC '(' . explist ')' ';'
+    9 let: IDENT '=' . exp ';'
 
-    NUMBER  shift, and go to state 25
-    IDENT   shift, and go to state 26
-    STRING  shift, and go to state 27
-    '('     shift, and go to state 28
+    NUMBER  shift, and go to state 28
+    IDENT   shift, and go to state 29
+    STRING  shift, and go to state 30
+    '('     shift, and go to state 31
 
-    explist  go to state 33
-    exp      go to state 32
-    factor   go to state 30
+    exp     go to state 32
+    factor  go to state 33
 
 
 state 15
 
-    6 stmt: WHILE '(' . exp ')' '{' stmts '}'
+   10 call: IDENT '(' . explist ')' ';'
+   11     | IDENT '(' . ')' ';'
 
-    NUMBER  shift, and go to state 25
-    IDENT   shift, and go to state 26
-    STRING  shift, and go to state 27
-    '('     shift, and go to state 28
+    NUMBER  shift, and go to state 28
+    IDENT   shift, and go to state 29
+    STRING  shift, and go to state 30
+    '('     shift, and go to state 31
+    ')'     shift, and go to state 34
 
-    exp     go to state 34
-    factor  go to state 30
+    explist  go to state 35
+    exp      go to state 36
+    factor   go to state 33
 
 
 state 16
 
-   20 if: IF '(' . exp ')' '{' stmts '}'
+   12 call: FUNC '(' . explist ')' ';'
 
-    NUMBER  shift, and go to state 25
-    IDENT   shift, and go to state 26
-    STRING  shift, and go to state 27
-    '('     shift, and go to state 28
+    NUMBER  shift, and go to state 28
+    IDENT   shift, and go to state 29
+    STRING  shift, and go to state 30
+    '('     shift, and go to state 31
 
-    exp     go to state 35
-    factor  go to state 30
+    explist  go to state 37
+    exp      go to state 36
+    factor   go to state 33
 
 
 state 17
+
+    7 stmt: WHILE '(' . exp ')' '{' stmts '}'
+
+    NUMBER  shift, and go to state 28
+    IDENT   shift, and go to state 29
+    STRING  shift, and go to state 30
+    '('     shift, and go to state 31
+
+    exp     go to state 38
+    factor  go to state 33
+
+
+state 18
+
+   24 if: IF '(' . exp ')' '{' stmts '}'
+
+    NUMBER  shift, and go to state 28
+    IDENT   shift, and go to state 29
+    STRING  shift, and go to state 30
+    '('     shift, and go to state 31
+
+    exp     go to state 39
+    factor  go to state 33
+
+
+state 19
+
+   13 declare: DECLARE IDENT . '(' symlist ')' '{' stmts '}'
+   14        | DECLARE IDENT . '(' ')' '{' stmts '}'
+
+    '('  shift, and go to state 40
+
+
+state 20
 
     0 $accept: program $end .
 
     $default  accept
 
 
-state 18
+state 21
 
     3 stmts: stmt stmts .
 
     $default  reduce using rule 3 (stmts)
 
 
-state 19
-
-   19 else: ELSE . '{' stmts '}'
-
-    '{'  shift, and go to state 36
-
-
-state 20
-
-   18 elsif: ELSIF . '(' exp ')' '{' stmts '}'
-
-    '('  shift, and go to state 37
-
-
-state 21
-
-   12 ifstmt: if elselist .
-
-    $default  reduce using rule 12 (ifstmt)
-
-
 state 22
 
-   13 elselist: elsiflist .
-   15         | elsiflist . else
+   23 else: ELSE . '{' stmts '}'
 
-    ELSE  shift, and go to state 19
-
-    $default  reduce using rule 13 (elselist)
-
-    else  go to state 38
+    '{'  shift, and go to state 41
 
 
 state 23
 
-   16 elsiflist: elsif .
-   17          | elsif . elsiflist
+   22 elsif: ELSIF . '(' exp ')' '{' stmts '}'
 
-    ELSIF  shift, and go to state 20
-
-    $default  reduce using rule 16 (elsiflist)
-
-    elsiflist  go to state 39
-    elsif      go to state 23
+    '('  shift, and go to state 42
 
 
 state 24
 
-   14 elselist: else .
+   16 ifstmt: if elselist .
 
-    $default  reduce using rule 14 (elselist)
+    $default  reduce using rule 16 (ifstmt)
 
 
 state 25
 
-   29 factor: NUMBER .
+   17 elselist: elsiflist .
+   19         | elsiflist . else
 
-    $default  reduce using rule 29 (factor)
+    ELSE  shift, and go to state 22
+
+    $default  reduce using rule 17 (elselist)
+
+    else  go to state 43
 
 
 state 26
 
-   30 factor: IDENT .
+   20 elsiflist: elsif .
+   21          | elsif . elsiflist
 
-    $default  reduce using rule 30 (factor)
+    ELSIF  shift, and go to state 23
+
+    $default  reduce using rule 20 (elsiflist)
+
+    elsiflist  go to state 44
+    elsif      go to state 26
 
 
 state 27
 
-   31 factor: STRING .
+   18 elselist: else .
 
-    $default  reduce using rule 31 (factor)
+    $default  reduce using rule 18 (elselist)
 
 
 state 28
 
-   28 factor: '(' . exp ')'
+   35 factor: NUMBER .
 
-    NUMBER  shift, and go to state 25
-    IDENT   shift, and go to state 26
-    STRING  shift, and go to state 27
-    '('     shift, and go to state 28
-
-    exp     go to state 40
-    factor  go to state 30
+    $default  reduce using rule 35 (factor)
 
 
 state 29
 
-    8 let: IDENT '=' exp . ';'
+   36 factor: IDENT .
 
-    ';'  shift, and go to state 41
+    $default  reduce using rule 36 (factor)
 
 
 state 30
 
-   23 exp: factor .
-   24    | factor . '+' factor
-   25    | factor . '-' factor
-   26    | factor . '*' factor
-   27    | factor . '/' factor
+   37 factor: STRING .
 
-    '+'  shift, and go to state 42
-    '-'  shift, and go to state 43
-    '*'  shift, and go to state 44
-    '/'  shift, and go to state 45
-
-    $default  reduce using rule 23 (exp)
+    $default  reduce using rule 37 (factor)
 
 
 state 31
 
-    9 call: IDENT '(' explist . ')' ';'
+   34 factor: '(' . exp ')'
 
-    ')'  shift, and go to state 46
+    NUMBER  shift, and go to state 28
+    IDENT   shift, and go to state 29
+    STRING  shift, and go to state 30
+    '('     shift, and go to state 31
+
+    exp     go to state 45
+    factor  go to state 33
 
 
 state 32
 
-   21 explist: exp . ',' explist
-   22        | exp .
+    9 let: IDENT '=' exp . ';'
 
-    ','  shift, and go to state 47
-
-    $default  reduce using rule 22 (explist)
+    ';'  shift, and go to state 46
 
 
 state 33
 
-   10 call: FUNC '(' explist . ')' ';'
+   29 exp: factor .
+   30    | factor . '+' factor
+   31    | factor . '-' factor
+   32    | factor . '*' factor
+   33    | factor . '/' factor
 
-    ')'  shift, and go to state 48
+    '+'  shift, and go to state 47
+    '-'  shift, and go to state 48
+    '*'  shift, and go to state 49
+    '/'  shift, and go to state 50
+
+    $default  reduce using rule 29 (exp)
 
 
 state 34
 
-    6 stmt: WHILE '(' exp . ')' '{' stmts '}'
+   11 call: IDENT '(' ')' . ';'
 
-    ')'  shift, and go to state 49
+    ';'  shift, and go to state 51
 
 
 state 35
 
-   20 if: IF '(' exp . ')' '{' stmts '}'
+   10 call: IDENT '(' explist . ')' ';'
 
-    ')'  shift, and go to state 50
+    ')'  shift, and go to state 52
 
 
 state 36
 
-   19 else: ELSE '{' . stmts '}'
+   27 explist: exp . ',' explist
+   28        | exp .
 
-    IDENT  shift, and go to state 1
-    FUNC   shift, and go to state 2
-    WHILE  shift, and go to state 3
-    IF     shift, and go to state 4
+    ','  shift, and go to state 53
 
-    stmts   go to state 51
-    stmt    go to state 7
-    let     go to state 8
-    call    go to state 9
-    ifstmt  go to state 10
-    if      go to state 11
+    $default  reduce using rule 28 (explist)
 
 
 state 37
 
-   18 elsif: ELSIF '(' . exp ')' '{' stmts '}'
+   12 call: FUNC '(' explist . ')' ';'
 
-    NUMBER  shift, and go to state 25
-    IDENT   shift, and go to state 26
-    STRING  shift, and go to state 27
-    '('     shift, and go to state 28
-
-    exp     go to state 52
-    factor  go to state 30
+    ')'  shift, and go to state 54
 
 
 state 38
 
-   15 elselist: elsiflist else .
+    7 stmt: WHILE '(' exp . ')' '{' stmts '}'
 
-    $default  reduce using rule 15 (elselist)
+    ')'  shift, and go to state 55
 
 
 state 39
 
-   17 elsiflist: elsif elsiflist .
+   24 if: IF '(' exp . ')' '{' stmts '}'
 
-    $default  reduce using rule 17 (elsiflist)
+    ')'  shift, and go to state 56
 
 
 state 40
 
-   28 factor: '(' exp . ')'
+   13 declare: DECLARE IDENT '(' . symlist ')' '{' stmts '}'
+   14        | DECLARE IDENT '(' . ')' '{' stmts '}'
 
-    ')'  shift, and go to state 53
+    IDENT  shift, and go to state 57
+    ')'    shift, and go to state 58
+
+    symlist  go to state 59
 
 
 state 41
 
-    8 let: IDENT '=' exp ';' .
+   23 else: ELSE '{' . stmts '}'
 
-    $default  reduce using rule 8 (let)
+    IDENT    shift, and go to state 1
+    FUNC     shift, and go to state 2
+    WHILE    shift, and go to state 3
+    IF       shift, and go to state 4
+    DECLARE  shift, and go to state 5
+
+    stmts    go to state 60
+    stmt     go to state 8
+    let      go to state 9
+    call     go to state 10
+    declare  go to state 11
+    ifstmt   go to state 12
+    if       go to state 13
 
 
 state 42
 
-   24 exp: factor '+' . factor
+   22 elsif: ELSIF '(' . exp ')' '{' stmts '}'
 
-    NUMBER  shift, and go to state 25
-    IDENT   shift, and go to state 26
-    STRING  shift, and go to state 27
-    '('     shift, and go to state 28
+    NUMBER  shift, and go to state 28
+    IDENT   shift, and go to state 29
+    STRING  shift, and go to state 30
+    '('     shift, and go to state 31
 
-    factor  go to state 54
+    exp     go to state 61
+    factor  go to state 33
 
 
 state 43
 
-   25 exp: factor '-' . factor
+   19 elselist: elsiflist else .
 
-    NUMBER  shift, and go to state 25
-    IDENT   shift, and go to state 26
-    STRING  shift, and go to state 27
-    '('     shift, and go to state 28
-
-    factor  go to state 55
+    $default  reduce using rule 19 (elselist)
 
 
 state 44
 
-   26 exp: factor '*' . factor
+   21 elsiflist: elsif elsiflist .
 
-    NUMBER  shift, and go to state 25
-    IDENT   shift, and go to state 26
-    STRING  shift, and go to state 27
-    '('     shift, and go to state 28
-
-    factor  go to state 56
+    $default  reduce using rule 21 (elsiflist)
 
 
 state 45
 
-   27 exp: factor '/' . factor
+   34 factor: '(' exp . ')'
 
-    NUMBER  shift, and go to state 25
-    IDENT   shift, and go to state 26
-    STRING  shift, and go to state 27
-    '('     shift, and go to state 28
-
-    factor  go to state 57
+    ')'  shift, and go to state 62
 
 
 state 46
 
-    9 call: IDENT '(' explist ')' . ';'
+    9 let: IDENT '=' exp ';' .
 
-    ';'  shift, and go to state 58
+    $default  reduce using rule 9 (let)
 
 
 state 47
 
-   21 explist: exp ',' . explist
+   30 exp: factor '+' . factor
 
-    NUMBER  shift, and go to state 25
-    IDENT   shift, and go to state 26
-    STRING  shift, and go to state 27
-    '('     shift, and go to state 28
+    NUMBER  shift, and go to state 28
+    IDENT   shift, and go to state 29
+    STRING  shift, and go to state 30
+    '('     shift, and go to state 31
 
-    explist  go to state 59
-    exp      go to state 32
-    factor   go to state 30
+    factor  go to state 63
 
 
 state 48
 
-   10 call: FUNC '(' explist ')' . ';'
+   31 exp: factor '-' . factor
 
-    ';'  shift, and go to state 60
+    NUMBER  shift, and go to state 28
+    IDENT   shift, and go to state 29
+    STRING  shift, and go to state 30
+    '('     shift, and go to state 31
+
+    factor  go to state 64
 
 
 state 49
 
-    6 stmt: WHILE '(' exp ')' . '{' stmts '}'
+   32 exp: factor '*' . factor
 
-    '{'  shift, and go to state 61
+    NUMBER  shift, and go to state 28
+    IDENT   shift, and go to state 29
+    STRING  shift, and go to state 30
+    '('     shift, and go to state 31
+
+    factor  go to state 65
 
 
 state 50
 
-   20 if: IF '(' exp ')' . '{' stmts '}'
+   33 exp: factor '/' . factor
 
-    '{'  shift, and go to state 62
+    NUMBER  shift, and go to state 28
+    IDENT   shift, and go to state 29
+    STRING  shift, and go to state 30
+    '('     shift, and go to state 31
+
+    factor  go to state 66
 
 
 state 51
 
-   19 else: ELSE '{' stmts . '}'
+   11 call: IDENT '(' ')' ';' .
 
-    '}'  shift, and go to state 63
+    $default  reduce using rule 11 (call)
 
 
 state 52
 
-   18 elsif: ELSIF '(' exp . ')' '{' stmts '}'
+   10 call: IDENT '(' explist ')' . ';'
 
-    ')'  shift, and go to state 64
+    ';'  shift, and go to state 67
 
 
 state 53
 
-   28 factor: '(' exp ')' .
+   27 explist: exp ',' . explist
 
-    $default  reduce using rule 28 (factor)
+    NUMBER  shift, and go to state 28
+    IDENT   shift, and go to state 29
+    STRING  shift, and go to state 30
+    '('     shift, and go to state 31
+
+    explist  go to state 68
+    exp      go to state 36
+    factor   go to state 33
 
 
 state 54
 
-   24 exp: factor '+' factor .
+   12 call: FUNC '(' explist ')' . ';'
 
-    $default  reduce using rule 24 (exp)
+    ';'  shift, and go to state 69
 
 
 state 55
 
-   25 exp: factor '-' factor .
+    7 stmt: WHILE '(' exp ')' . '{' stmts '}'
 
-    $default  reduce using rule 25 (exp)
+    '{'  shift, and go to state 70
 
 
 state 56
 
-   26 exp: factor '*' factor .
+   24 if: IF '(' exp ')' . '{' stmts '}'
 
-    $default  reduce using rule 26 (exp)
+    '{'  shift, and go to state 71
 
 
 state 57
 
-   27 exp: factor '/' factor .
+   25 symlist: IDENT .
+   26        | IDENT . ',' symlist
 
-    $default  reduce using rule 27 (exp)
+    ','  shift, and go to state 72
+
+    $default  reduce using rule 25 (symlist)
 
 
 state 58
 
-    9 call: IDENT '(' explist ')' ';' .
+   14 declare: DECLARE IDENT '(' ')' . '{' stmts '}'
 
-    $default  reduce using rule 9 (call)
+    '{'  shift, and go to state 73
 
 
 state 59
 
-   21 explist: exp ',' explist .
+   13 declare: DECLARE IDENT '(' symlist . ')' '{' stmts '}'
 
-    $default  reduce using rule 21 (explist)
+    ')'  shift, and go to state 74
 
 
 state 60
 
-   10 call: FUNC '(' explist ')' ';' .
+   23 else: ELSE '{' stmts . '}'
 
-    $default  reduce using rule 10 (call)
+    '}'  shift, and go to state 75
 
 
 state 61
 
-    6 stmt: WHILE '(' exp ')' '{' . stmts '}'
+   22 elsif: ELSIF '(' exp . ')' '{' stmts '}'
 
-    IDENT  shift, and go to state 1
-    FUNC   shift, and go to state 2
-    WHILE  shift, and go to state 3
-    IF     shift, and go to state 4
-
-    stmts   go to state 65
-    stmt    go to state 7
-    let     go to state 8
-    call    go to state 9
-    ifstmt  go to state 10
-    if      go to state 11
+    ')'  shift, and go to state 76
 
 
 state 62
 
-   20 if: IF '(' exp ')' '{' . stmts '}'
+   34 factor: '(' exp ')' .
 
-    IDENT  shift, and go to state 1
-    FUNC   shift, and go to state 2
-    WHILE  shift, and go to state 3
-    IF     shift, and go to state 4
-
-    stmts   go to state 66
-    stmt    go to state 7
-    let     go to state 8
-    call    go to state 9
-    ifstmt  go to state 10
-    if      go to state 11
+    $default  reduce using rule 34 (factor)
 
 
 state 63
 
-   19 else: ELSE '{' stmts '}' .
+   30 exp: factor '+' factor .
 
-    $default  reduce using rule 19 (else)
+    $default  reduce using rule 30 (exp)
 
 
 state 64
 
-   18 elsif: ELSIF '(' exp ')' . '{' stmts '}'
+   31 exp: factor '-' factor .
 
-    '{'  shift, and go to state 67
+    $default  reduce using rule 31 (exp)
 
 
 state 65
 
-    6 stmt: WHILE '(' exp ')' '{' stmts . '}'
+   32 exp: factor '*' factor .
 
-    '}'  shift, and go to state 68
+    $default  reduce using rule 32 (exp)
 
 
 state 66
 
-   20 if: IF '(' exp ')' '{' stmts . '}'
+   33 exp: factor '/' factor .
 
-    '}'  shift, and go to state 69
+    $default  reduce using rule 33 (exp)
 
 
 state 67
 
-   18 elsif: ELSIF '(' exp ')' '{' . stmts '}'
+   10 call: IDENT '(' explist ')' ';' .
 
-    IDENT  shift, and go to state 1
-    FUNC   shift, and go to state 2
-    WHILE  shift, and go to state 3
-    IF     shift, and go to state 4
-
-    stmts   go to state 70
-    stmt    go to state 7
-    let     go to state 8
-    call    go to state 9
-    ifstmt  go to state 10
-    if      go to state 11
+    $default  reduce using rule 10 (call)
 
 
 state 68
 
-    6 stmt: WHILE '(' exp ')' '{' stmts '}' .
+   27 explist: exp ',' explist .
 
-    $default  reduce using rule 6 (stmt)
+    $default  reduce using rule 27 (explist)
 
 
 state 69
 
-   20 if: IF '(' exp ')' '{' stmts '}' .
+   12 call: FUNC '(' explist ')' ';' .
 
-    $default  reduce using rule 20 (if)
+    $default  reduce using rule 12 (call)
 
 
 state 70
 
-   18 elsif: ELSIF '(' exp ')' '{' stmts . '}'
+    7 stmt: WHILE '(' exp ')' '{' . stmts '}'
 
-    '}'  shift, and go to state 71
+    IDENT    shift, and go to state 1
+    FUNC     shift, and go to state 2
+    WHILE    shift, and go to state 3
+    IF       shift, and go to state 4
+    DECLARE  shift, and go to state 5
+
+    stmts    go to state 77
+    stmt     go to state 8
+    let      go to state 9
+    call     go to state 10
+    declare  go to state 11
+    ifstmt   go to state 12
+    if       go to state 13
 
 
 state 71
 
-   18 elsif: ELSIF '(' exp ')' '{' stmts '}' .
+   24 if: IF '(' exp ')' '{' . stmts '}'
 
-    $default  reduce using rule 18 (elsif)
+    IDENT    shift, and go to state 1
+    FUNC     shift, and go to state 2
+    WHILE    shift, and go to state 3
+    IF       shift, and go to state 4
+    DECLARE  shift, and go to state 5
+
+    stmts    go to state 78
+    stmt     go to state 8
+    let      go to state 9
+    call     go to state 10
+    declare  go to state 11
+    ifstmt   go to state 12
+    if       go to state 13
+
+
+state 72
+
+   26 symlist: IDENT ',' . symlist
+
+    IDENT  shift, and go to state 57
+
+    symlist  go to state 79
+
+
+state 73
+
+   14 declare: DECLARE IDENT '(' ')' '{' . stmts '}'
+
+    IDENT    shift, and go to state 1
+    FUNC     shift, and go to state 2
+    WHILE    shift, and go to state 3
+    IF       shift, and go to state 4
+    DECLARE  shift, and go to state 5
+
+    stmts    go to state 80
+    stmt     go to state 8
+    let      go to state 9
+    call     go to state 10
+    declare  go to state 11
+    ifstmt   go to state 12
+    if       go to state 13
+
+
+state 74
+
+   13 declare: DECLARE IDENT '(' symlist ')' . '{' stmts '}'
+
+    '{'  shift, and go to state 81
+
+
+state 75
+
+   23 else: ELSE '{' stmts '}' .
+
+    $default  reduce using rule 23 (else)
+
+
+state 76
+
+   22 elsif: ELSIF '(' exp ')' . '{' stmts '}'
+
+    '{'  shift, and go to state 82
+
+
+state 77
+
+    7 stmt: WHILE '(' exp ')' '{' stmts . '}'
+
+    '}'  shift, and go to state 83
+
+
+state 78
+
+   24 if: IF '(' exp ')' '{' stmts . '}'
+
+    '}'  shift, and go to state 84
+
+
+state 79
+
+   26 symlist: IDENT ',' symlist .
+
+    $default  reduce using rule 26 (symlist)
+
+
+state 80
+
+   14 declare: DECLARE IDENT '(' ')' '{' stmts . '}'
+
+    '}'  shift, and go to state 85
+
+
+state 81
+
+   13 declare: DECLARE IDENT '(' symlist ')' '{' . stmts '}'
+
+    IDENT    shift, and go to state 1
+    FUNC     shift, and go to state 2
+    WHILE    shift, and go to state 3
+    IF       shift, and go to state 4
+    DECLARE  shift, and go to state 5
+
+    stmts    go to state 86
+    stmt     go to state 8
+    let      go to state 9
+    call     go to state 10
+    declare  go to state 11
+    ifstmt   go to state 12
+    if       go to state 13
+
+
+state 82
+
+   22 elsif: ELSIF '(' exp ')' '{' . stmts '}'
+
+    IDENT    shift, and go to state 1
+    FUNC     shift, and go to state 2
+    WHILE    shift, and go to state 3
+    IF       shift, and go to state 4
+    DECLARE  shift, and go to state 5
+
+    stmts    go to state 87
+    stmt     go to state 8
+    let      go to state 9
+    call     go to state 10
+    declare  go to state 11
+    ifstmt   go to state 12
+    if       go to state 13
+
+
+state 83
+
+    7 stmt: WHILE '(' exp ')' '{' stmts '}' .
+
+    $default  reduce using rule 7 (stmt)
+
+
+state 84
+
+   24 if: IF '(' exp ')' '{' stmts '}' .
+
+    $default  reduce using rule 24 (if)
+
+
+state 85
+
+   14 declare: DECLARE IDENT '(' ')' '{' stmts '}' .
+
+    $default  reduce using rule 14 (declare)
+
+
+state 86
+
+   13 declare: DECLARE IDENT '(' symlist ')' '{' stmts . '}'
+
+    '}'  shift, and go to state 88
+
+
+state 87
+
+   22 elsif: ELSIF '(' exp ')' '{' stmts . '}'
+
+    '}'  shift, and go to state 89
+
+
+state 88
+
+   13 declare: DECLARE IDENT '(' symlist ')' '{' stmts '}' .
+
+    $default  reduce using rule 13 (declare)
+
+
+state 89
+
+   22 elsif: ELSIF '(' exp ')' '{' stmts '}' .
+
+    $default  reduce using rule 22 (elsif)

@@ -1,3 +1,6 @@
+#ifndef __SCRIPTLANGUAGE_LANGUAGE__
+#define __SCRIPTLANGUAGE_LANGUAGE__
+
 enum nodetype {
 	NODE_INT = 1,
 	NODE_FLOAT,
@@ -41,6 +44,13 @@ struct symbol {
         double d;
         char* s;
     } su;
+	struct ast * func;
+	struct symlist *syms;
+};
+
+struct symlist {
+	struct symbol *sym;
+	struct symlist *next;
 };
 
 typedef struct expression {
@@ -95,7 +105,7 @@ struct fncall {
 struct ufncall {
     enum nodetype ntype;
     struct ast *l;
-    struct symbol *sym;
+    struct symbol *s;
 };
 
 extern int yylineno;
@@ -105,7 +115,6 @@ void yyerror(char *s, ...);
 struct symbol symtab[NHASH];
 struct symbol * lookup(char* sym);
 
-Expression eval(struct ast* a);
 struct ast *newast(enum nodetype type, char* contents, struct ast *l, struct ast *r);
 struct ast *newnum(char *s);
 struct ast *newref(struct symbol *sym);
@@ -113,3 +122,10 @@ struct ast *newasgn(struct symbol *sym, struct ast *v);
 struct ast *newfunc(enum bifs ftype, struct ast *l);
 struct ast *newcall(struct symbol *s,  struct ast *l);
 struct ast *newflow(enum nodetype ntype, struct ast *cond, struct ast *tl, struct ast *el);
+
+void dodef(struct symbol *name, struct symlist *syms, struct ast *func);
+struct symlist *newsymlist(struct symbol *sym, struct symlist *next);
+void symlistfree(struct symlist *sl);
+void treefree(struct ast *);
+
+#endif

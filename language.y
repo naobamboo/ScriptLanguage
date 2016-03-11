@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 #include "language.h"
+#include "eval.h"
 #define YYERROR_VERBOSE 1
 #define YYDEBUG 1
 
@@ -17,6 +18,7 @@ int yywrap()
 	char* str;
 	struct ast *a;
 	struct symbol *sym;
+	struct symlist *sl;
 	int fn;
 }
 
@@ -28,7 +30,14 @@ int yywrap()
 %token IF
 %token ELSE
 %token ELSIF
-%type <a> factor exp explist let call if else elsif elsiflist elselist ifstmt stmt stmts program
+%token DECLARE
+%type <a> factor
+%type <a> exp explist
+%type <sl> symlist
+%type <a> let call declare  if else elsif elsiflist elselist ifstmt
+%type <a> stmt stmts
+%type <a> program
+
 
 %left '+' '-'
 %left '*' '/'
@@ -38,13 +47,14 @@ int yywrap()
 program
 	: stmts { eval($1); }
 	;
-stmts 
+stmts
 	: stmt
 	| stmt stmts { $$ = newast(NODE_STMTS, NULL,  $1, $2); }
 	;
 stmt
-	: let 
+	: let
 	| call
+	| declare
 	| WHILE '(' exp ')' '{' stmts '}' { $$ = newast(NODE_WHILE, NULL, $3, $6); }
 	| ifstmt
 	;
@@ -53,11 +63,16 @@ let
 	;
 call
 	: IDENT '(' explist ')' ';' { $$ = newcall($1, $3); }
+	| IDENT '(' ')' ';' { $$ = newcall($1,  NULL); }
 	| FUNC '(' explist ')' ';' { $$ = newfunc($1, $3); }
+	;
+declare
+	: DECLARE IDENT '(' symlist ')' '{' stmts '}' { dodef($2, $4, $7); }
+	| DECLARE IDENT '(' ')' '{' stmts '}' { dodef($2, NULL, $6); }
 	;
 ifstmt
 	: if
-	| if elselist { $$ = newast(NODE_SELECT, NULL, $1, $2); } 
+	| if elselist { $$ = newast(NODE_SELECT, NULL, $1, $2); }
 	;
 elselist
 	: elsiflist
@@ -76,6 +91,10 @@ else
 	;
 if
 	: IF '(' exp ')' '{' stmts '}' { $$ = newast(NODE_IF, NULL, $3, $6); }
+	;
+symlist
+	: IDENT { $$ = newsymlist($1, NULL); }
+	| IDENT ',' symlist { $$ = newsymlist($1, $3); }
 	;
 explist
 	: exp ',' explist { $$ = newast(NODE_EXPLIST, NULL,  $1, $3); }
