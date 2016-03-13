@@ -68,6 +68,7 @@ call
 	;
 declare
 	: DECLARE IDENT '(' symlist ')' '{' stmts '}' { dodef($2, $4, $7); }
+	| DECLARE IDENT '(' ')' '{' stmts '}' { dodef($2, NULL, $6); }
 	;
 ifstmt
 	: if
@@ -92,8 +93,7 @@ if
 	: IF '(' exp ')' '{' stmts '}' { $$ = newast(NODE_IF, NULL, $3, $6); }
 	;
 symlist
-	: /* empty */
-	| IDENT { $$ = newsymlist($1, NULL); }
+	: IDENT { $$ = newsymlist($1, NULL); }
 	| IDENT ',' symlist { $$ = newsymlist($1, $3); }
 	;
 explist

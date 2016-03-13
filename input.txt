@@ -33,7 +33,7 @@ function test2(x, y){
 }
 
 function test3() {
-	println("test3)");
+	println("test3");
 }
 test(a);
 test2(b, "hey");
