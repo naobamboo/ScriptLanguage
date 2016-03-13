@@ -5,7 +5,7 @@ ScriptLanguage is original language and interpreter for personal-schooling.
 ## QuickStart
 
 - Clone the repo: $ git clone https://github.com/naobamboo/ScriptLanguage.git
-- Change deirectory: $ cd ScriptLanguage
+- Change directory: $ cd ScriptLanguage
 - Install program: $ make
 - Run: $ ./ScriptLanguage */path/to/file*
 (default is ./sample.txt)
@@ -14,6 +14,7 @@ ScriptLanguage is original language and interpreter for personal-schooling.
 You can run these codes.
 
 ```
+// sample.txt
 // FizzBuzz example
 num  = 15;
 println("FizzBuzz 1 to ", num);
@@ -47,7 +48,7 @@ test(c, d);
 ScriptLanguage supports funcion as below:
 
 - Number typing (int, ant float)
-- String typing 
+- String typing
 - Symbol typing
 - Expression +, -, *, /, and %
 - Comparison ==, !=, <, >, <=, and >=
