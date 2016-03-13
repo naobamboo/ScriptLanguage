@@ -47,12 +47,12 @@ int yywrap()
 program
 	: stmts { eval($1); }
 	;
-stmts 
+stmts
 	: stmt
 	| stmt stmts { $$ = newast(NODE_STMTS, NULL,  $1, $2); }
 	;
 stmt
-	: let 
+	: let
 	| call
 	| declare
 	| WHILE '(' exp ')' '{' stmts '}' { $$ = newast(NODE_WHILE, NULL, $3, $6); }
@@ -63,6 +63,7 @@ let
 	;
 call
 	: IDENT '(' explist ')' ';' { $$ = newcall($1, $3); }
+	| IDENT '(' ')' ';' { $$ = newcall($1,  NULL); }
 	| FUNC '(' explist ')' ';' { $$ = newfunc($1, $3); }
 	;
 declare
@@ -70,7 +71,7 @@ declare
 	;
 ifstmt
 	: if
-	| if elselist { $$ = newast(NODE_SELECT, NULL, $1, $2); } 
+	| if elselist { $$ = newast(NODE_SELECT, NULL, $1, $2); }
 	;
 elselist
 	: elsiflist

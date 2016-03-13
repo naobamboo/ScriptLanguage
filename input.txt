@@ -24,6 +24,17 @@ if (1) {
 	println("else");
 }
 
-function test() {
-	println("hi");
+function test(z) {
+	println(z);
 }
+
+function test2(x, y){
+	println(x, y);
+}
+
+function test3() {
+	println("test3)");
+}
+test(a);
+test2(b, "hey");
+test3();

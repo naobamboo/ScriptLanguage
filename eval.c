@@ -149,7 +149,7 @@ Expression eval(struct ast *a)
 			exp = eval(a->l);
 			if (!expToBool(exp)) {
 				exp = eval(a->r);
-			} 
+			}
 			break;
 	}
 	return exp;
@@ -223,8 +223,118 @@ static Expression calluser(struct ufncall *f)
 	struct symbol *fn = f->s;
 	struct symlist *sl;
 	struct ast *args = f->l;
+    Expression *oldexp,  *newexp;
 	Expression exp;
-	return exp;
+    int nargs;
+    int i;
+
+    if(!fn->func) {
+        yyerror("call to undefined function", fn->name);
+        exit(0);
+    }
+
+    /* count the arguments */
+    sl = fn->syms;
+    for(nargs = 0; sl; sl = sl->next)
+        nargs++;
+
+    /* prepare to save them */
+    oldexp = (Expression *)malloc(nargs * sizeof(Expression));
+    newexp = (Expression *)malloc(nargs * sizeof(Expression));
+    if(!oldexp || !newexp) {
+        yyerror("Out of space in %s",  fn->name); exit(0);
+    }
+
+    /* evaluate the arguments */
+    for(i = 0; i < nargs; i++) {
+        if(!args) {
+            yyerror("too few args in call to %s",  fn->name);
+            free(oldexp); free(newexp);
+            exit(0);
+        }
+
+        if(args->ntype == NODE_EXPLIST) {
+            newexp[i] = eval(args->l);
+            args = args->r;
+        } else {
+            newexp[i] = eval(args);
+            args = NULL;
+        }
+    }
+
+    /* save old exp of dummies,  assign new ones */
+    sl = fn->syms;
+    for(i = 0; i < nargs; i++) {
+        struct symbol *s = sl->sym;
+
+        switch(s->stype) {
+            case SYMBOL_NIL:
+                break;
+            case SYMBOL_INT:
+                oldexp[i].etype = EXP_INT;
+                oldexp[i].eu.i = s->su.i;
+                s->su.i = newexp[i].eu.i;
+                break;
+            case SYMBOL_FLOAT:
+                oldexp[i].etype = EXP_FLOAT;
+                oldexp[i].eu.d = s->su.d;
+                s->su.d = newexp[i].eu.d;
+                break;
+            case SYMBOL_STR:
+                oldexp[i].etype = EXP_STR;
+                oldexp[i].eu.s = s->su.s;
+                s->su.s = newexp[i].eu.s;
+                break;
+        }
+        switch(newexp[i].etype) {
+            case EXP_NIL:
+                break;
+            case EXP_INT:
+                s->stype = SYMBOL_INT;
+                s->su.i = newexp[i].eu.i;
+                break;
+            case EXP_FLOAT:
+                s->stype = SYMBOL_FLOAT;
+                s->su.d = newexp[i].eu.d;
+                break;
+            case EXP_STR:
+                s->stype = SYMBOL_STR;
+                s->su.s = newexp[i].eu.s;
+                break;
+        }
+        sl = sl->next;
+    }
+
+    free(newexp);
+
+    /* evaluate the function */
+    exp = eval(fn->func);
+
+    /* put the dummies back */
+    sl = fn->syms;
+    for(i = 0; i <nargs; i++) {
+        struct symbol *s = sl->sym;
+        switch(oldexp[i].etype) {
+            case EXP_NIL:
+                break;
+            case EXP_INT:
+                s->stype = SYMBOL_INT;
+                s->su.i = oldexp[i].eu.i;
+                break;
+            case EXP_FLOAT:
+                s->stype = SYMBOL_FLOAT;
+                s->su.d = oldexp[i].eu.d;
+                break;
+            case EXP_STR:
+                s->stype = SYMBOL_STR;
+                s->su.s = oldexp[i].eu.s;
+                break;
+        }
+        sl = sl->next;
+    }
+
+    free(oldexp);
+    return exp;
 }
 
 static bool expToBool(Expression exp) {
