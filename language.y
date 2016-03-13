@@ -25,6 +25,7 @@ int yywrap()
 %token <str> NUMBER
 %token <sym> IDENT
 %token <str> STRING
+%token <fn> CMP
 %token <fn> FUNC
 %token WHILE
 %token IF
@@ -40,7 +41,7 @@ int yywrap()
 
 
 %left '+' '-'
-%left '*' '/'
+%left '*' '/' '%'
 %right '='
 
 %%
@@ -101,11 +102,13 @@ explist
 	| exp
 	;
 exp
-	: factor
+	: factor CMP factor { $$ = newcmp($2, $1, $3); }
 	| factor '+' factor { $$ = newast(NODE_EXP, "+", $1, $3); }
 	| factor '-' factor { $$ = newast(NODE_EXP, "-", $1, $3); }
 	| factor '*' factor { $$ = newast(NODE_EXP, "*", $1, $3); }
 	| factor '/' factor { $$ = newast(NODE_EXP, "/", $1, $3); }
+	| factor '%' factor { $$ = newast(NODE_EXP, "%", $1, $3); }
+	| factor
 	;
 factor
 	: '(' exp ')' { $$ = $2; }

@@ -1,39 +1,26 @@
-// This is test code
-a = 2;
-println("a: ", a); // a: 2
+// FizzBuzz example
+num  = 15;
+println("FizzBuzz 1 to ", num);
 
-b = a * (4 + 5);
-println("b: ", b); // b: 18
-
-c = 3;
-while (c) {
-	println("c: ", c); // c: 3, c: 2, c:1
-	c = c - 1;
+i = 1;
+while(i <= num) {
+	if ((i % 15) == 0) {
+		println("FizzBuzz");
+	} elsif ((i % 3) == 0) {
+		println("Fizz");
+	} elsif((i % 5) == 0) {
+		println("Buzz");
+	} else {
+		println(i);
+	}
+	i = i + 1;
 }
 
-d = 3;
-
-if (1) {
-	println("if");
-} elsif (0) {
-	println("elsif1");
-} elsif (0) {
-	println("elsif2");
-} else {
-	println("else");
+// Function Test
+function test(x, y) {
+	println("function: ", x + y);
 }
 
-function test(z) {
-	println(z);
-}
-
-function test2(x, y){
-	println(x, y);
-}
-
-function test3() {
-	println("test3");
-}
-test(a);
-test2(b, "hey");
-test3();
+c = 5;
+d = 10;
+test(c, d);

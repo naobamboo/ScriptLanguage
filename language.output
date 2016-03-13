@@ -44,23 +44,26 @@ Grammar
    27 explist: exp ',' explist
    28        | exp
 
-   29 exp: factor
+   29 exp: factor CMP factor
    30    | factor '+' factor
    31    | factor '-' factor
    32    | factor '*' factor
    33    | factor '/' factor
+   34    | factor '%' factor
+   35    | factor
 
-   34 factor: '(' exp ')'
-   35       | NUMBER
-   36       | IDENT
-   37       | STRING
+   36 factor: '(' exp ')'
+   37       | NUMBER
+   38       | IDENT
+   39       | STRING
 
 
 Terminals, with rules where they appear
 
 $end (0) 0
-'(' (40) 7 10 11 12 13 14 22 24 34
-')' (41) 7 10 11 12 13 14 22 24 34
+'%' (37) 34
+'(' (40) 7 10 11 12 13 14 22 24 36
+')' (41) 7 10 11 12 13 14 22 24 36
 '*' (42) 32
 '+' (43) 30
 ',' (44) 26 27
@@ -71,53 +74,54 @@ $end (0) 0
 '{' (123) 7 13 14 22 23 24
 '}' (125) 7 13 14 22 23 24
 error (256)
-NUMBER (258) 35
-IDENT (259) 9 10 11 13 14 25 26 36
-STRING (260) 37
-FUNC (261) 12
-WHILE (262) 7
-IF (263) 24
-ELSE (264) 23
-ELSIF (265) 22
-DECLARE (266) 13 14
+NUMBER (258) 37
+IDENT (259) 9 10 11 13 14 25 26 38
+STRING (260) 39
+CMP (261) 29
+FUNC (262) 12
+WHILE (263) 7
+IF (264) 24
+ELSE (265) 23
+ELSIF (266) 22
+DECLARE (267) 13 14
 
 
 Nonterminals, with rules where they appear
 
-$accept (23)
+$accept (25)
     on left: 0
-program (24)
+program (26)
     on left: 1, on right: 0
-stmts (25)
+stmts (27)
     on left: 2 3, on right: 1 3 7 13 14 22 23 24
-stmt (26)
+stmt (28)
     on left: 4 5 6 7 8, on right: 2 3
-let (27)
+let (29)
     on left: 9, on right: 4
-call (28)
+call (30)
     on left: 10 11 12, on right: 5
-declare (29)
+declare (31)
     on left: 13 14, on right: 6
-ifstmt (30)
+ifstmt (32)
     on left: 15 16, on right: 8
-elselist (31)
+elselist (33)
     on left: 17 18 19, on right: 16
-elsiflist (32)
+elsiflist (34)
     on left: 20 21, on right: 17 19 21
-elsif (33)
+elsif (35)
     on left: 22, on right: 20 21
-else (34)
+else (36)
     on left: 23, on right: 18 19
-if (35)
+if (37)
     on left: 24, on right: 15 16
-symlist (36)
+symlist (38)
     on left: 25 26, on right: 13 26
-explist (37)
+explist (39)
     on left: 27 28, on right: 10 12 27
-exp (38)
-    on left: 29 30 31 32 33, on right: 7 9 22 24 27 28 34
-factor (39)
-    on left: 34 35 36 37, on right: 29 30 31 32 33
+exp (40)
+    on left: 29 30 31 32 33 34 35, on right: 7 9 22 24 27 28 36
+factor (41)
+    on left: 36 37 38 39, on right: 29 30 31 32 33 34 35
 
 
 state 0
@@ -405,28 +409,28 @@ state 27
 
 state 28
 
-   35 factor: NUMBER .
-
-    $default  reduce using rule 35 (factor)
-
-
-state 29
-
-   36 factor: IDENT .
-
-    $default  reduce using rule 36 (factor)
-
-
-state 30
-
-   37 factor: STRING .
+   37 factor: NUMBER .
 
     $default  reduce using rule 37 (factor)
 
 
+state 29
+
+   38 factor: IDENT .
+
+    $default  reduce using rule 38 (factor)
+
+
+state 30
+
+   39 factor: STRING .
+
+    $default  reduce using rule 39 (factor)
+
+
 state 31
 
-   34 factor: '(' . exp ')'
+   36 factor: '(' . exp ')'
 
     NUMBER  shift, and go to state 28
     IDENT   shift, and go to state 29
@@ -446,32 +450,36 @@ state 32
 
 state 33
 
-   29 exp: factor .
+   29 exp: factor . CMP factor
    30    | factor . '+' factor
    31    | factor . '-' factor
    32    | factor . '*' factor
    33    | factor . '/' factor
+   34    | factor . '%' factor
+   35    | factor .
 
-    '+'  shift, and go to state 47
-    '-'  shift, and go to state 48
-    '*'  shift, and go to state 49
-    '/'  shift, and go to state 50
+    CMP  shift, and go to state 47
+    '+'  shift, and go to state 48
+    '-'  shift, and go to state 49
+    '*'  shift, and go to state 50
+    '/'  shift, and go to state 51
+    '%'  shift, and go to state 52
 
-    $default  reduce using rule 29 (exp)
+    $default  reduce using rule 35 (exp)
 
 
 state 34
 
    11 call: IDENT '(' ')' . ';'
 
-    ';'  shift, and go to state 51
+    ';'  shift, and go to state 53
 
 
 state 35
 
    10 call: IDENT '(' explist . ')' ';'
 
-    ')'  shift, and go to state 52
+    ')'  shift, and go to state 54
 
 
 state 36
@@ -479,7 +487,7 @@ state 36
    27 explist: exp . ',' explist
    28        | exp .
 
-    ','  shift, and go to state 53
+    ','  shift, and go to state 55
 
     $default  reduce using rule 28 (explist)
 
@@ -488,21 +496,21 @@ state 37
 
    12 call: FUNC '(' explist . ')' ';'
 
-    ')'  shift, and go to state 54
+    ')'  shift, and go to state 56
 
 
 state 38
 
     7 stmt: WHILE '(' exp . ')' '{' stmts '}'
 
-    ')'  shift, and go to state 55
+    ')'  shift, and go to state 57
 
 
 state 39
 
    24 if: IF '(' exp . ')' '{' stmts '}'
 
-    ')'  shift, and go to state 56
+    ')'  shift, and go to state 58
 
 
 state 40
@@ -510,10 +518,10 @@ state 40
    13 declare: DECLARE IDENT '(' . symlist ')' '{' stmts '}'
    14        | DECLARE IDENT '(' . ')' '{' stmts '}'
 
-    IDENT  shift, and go to state 57
-    ')'    shift, and go to state 58
+    IDENT  shift, and go to state 59
+    ')'    shift, and go to state 60
 
-    symlist  go to state 59
+    symlist  go to state 61
 
 
 state 41
@@ -526,7 +534,7 @@ state 41
     IF       shift, and go to state 4
     DECLARE  shift, and go to state 5
 
-    stmts    go to state 60
+    stmts    go to state 62
     stmt     go to state 8
     let      go to state 9
     call     go to state 10
@@ -544,7 +552,7 @@ state 42
     STRING  shift, and go to state 30
     '('     shift, and go to state 31
 
-    exp     go to state 61
+    exp     go to state 63
     factor  go to state 33
 
 
@@ -564,9 +572,9 @@ state 44
 
 state 45
 
-   34 factor: '(' exp . ')'
+   36 factor: '(' exp . ')'
 
-    ')'  shift, and go to state 62
+    ')'  shift, and go to state 64
 
 
 state 46
@@ -578,31 +586,7 @@ state 46
 
 state 47
 
-   30 exp: factor '+' . factor
-
-    NUMBER  shift, and go to state 28
-    IDENT   shift, and go to state 29
-    STRING  shift, and go to state 30
-    '('     shift, and go to state 31
-
-    factor  go to state 63
-
-
-state 48
-
-   31 exp: factor '-' . factor
-
-    NUMBER  shift, and go to state 28
-    IDENT   shift, and go to state 29
-    STRING  shift, and go to state 30
-    '('     shift, and go to state 31
-
-    factor  go to state 64
-
-
-state 49
-
-   32 exp: factor '*' . factor
+   29 exp: factor CMP . factor
 
     NUMBER  shift, and go to state 28
     IDENT   shift, and go to state 29
@@ -612,9 +596,9 @@ state 49
     factor  go to state 65
 
 
-state 50
+state 48
 
-   33 exp: factor '/' . factor
+   30 exp: factor '+' . factor
 
     NUMBER  shift, and go to state 28
     IDENT   shift, and go to state 29
@@ -624,21 +608,69 @@ state 50
     factor  go to state 66
 
 
+state 49
+
+   31 exp: factor '-' . factor
+
+    NUMBER  shift, and go to state 28
+    IDENT   shift, and go to state 29
+    STRING  shift, and go to state 30
+    '('     shift, and go to state 31
+
+    factor  go to state 67
+
+
+state 50
+
+   32 exp: factor '*' . factor
+
+    NUMBER  shift, and go to state 28
+    IDENT   shift, and go to state 29
+    STRING  shift, and go to state 30
+    '('     shift, and go to state 31
+
+    factor  go to state 68
+
+
 state 51
+
+   33 exp: factor '/' . factor
+
+    NUMBER  shift, and go to state 28
+    IDENT   shift, and go to state 29
+    STRING  shift, and go to state 30
+    '('     shift, and go to state 31
+
+    factor  go to state 69
+
+
+state 52
+
+   34 exp: factor '%' . factor
+
+    NUMBER  shift, and go to state 28
+    IDENT   shift, and go to state 29
+    STRING  shift, and go to state 30
+    '('     shift, and go to state 31
+
+    factor  go to state 70
+
+
+state 53
 
    11 call: IDENT '(' ')' ';' .
 
     $default  reduce using rule 11 (call)
 
 
-state 52
+state 54
 
    10 call: IDENT '(' explist ')' . ';'
 
-    ';'  shift, and go to state 67
+    ';'  shift, and go to state 71
 
 
-state 53
+state 55
 
    27 explist: exp ',' . explist
 
@@ -647,127 +679,141 @@ state 53
     STRING  shift, and go to state 30
     '('     shift, and go to state 31
 
-    explist  go to state 68
+    explist  go to state 72
     exp      go to state 36
     factor   go to state 33
 
 
-state 54
+state 56
 
    12 call: FUNC '(' explist ')' . ';'
 
-    ';'  shift, and go to state 69
-
-
-state 55
-
-    7 stmt: WHILE '(' exp ')' . '{' stmts '}'
-
-    '{'  shift, and go to state 70
-
-
-state 56
-
-   24 if: IF '(' exp ')' . '{' stmts '}'
-
-    '{'  shift, and go to state 71
+    ';'  shift, and go to state 73
 
 
 state 57
 
-   25 symlist: IDENT .
-   26        | IDENT . ',' symlist
+    7 stmt: WHILE '(' exp ')' . '{' stmts '}'
 
-    ','  shift, and go to state 72
-
-    $default  reduce using rule 25 (symlist)
+    '{'  shift, and go to state 74
 
 
 state 58
 
-   14 declare: DECLARE IDENT '(' ')' . '{' stmts '}'
+   24 if: IF '(' exp ')' . '{' stmts '}'
 
-    '{'  shift, and go to state 73
+    '{'  shift, and go to state 75
 
 
 state 59
 
-   13 declare: DECLARE IDENT '(' symlist . ')' '{' stmts '}'
+   25 symlist: IDENT .
+   26        | IDENT . ',' symlist
 
-    ')'  shift, and go to state 74
+    ','  shift, and go to state 76
+
+    $default  reduce using rule 25 (symlist)
 
 
 state 60
 
-   23 else: ELSE '{' stmts . '}'
+   14 declare: DECLARE IDENT '(' ')' . '{' stmts '}'
 
-    '}'  shift, and go to state 75
+    '{'  shift, and go to state 77
 
 
 state 61
 
-   22 elsif: ELSIF '(' exp . ')' '{' stmts '}'
+   13 declare: DECLARE IDENT '(' symlist . ')' '{' stmts '}'
 
-    ')'  shift, and go to state 76
+    ')'  shift, and go to state 78
 
 
 state 62
 
-   34 factor: '(' exp ')' .
+   23 else: ELSE '{' stmts . '}'
 
-    $default  reduce using rule 34 (factor)
+    '}'  shift, and go to state 79
 
 
 state 63
+
+   22 elsif: ELSIF '(' exp . ')' '{' stmts '}'
+
+    ')'  shift, and go to state 80
+
+
+state 64
+
+   36 factor: '(' exp ')' .
+
+    $default  reduce using rule 36 (factor)
+
+
+state 65
+
+   29 exp: factor CMP factor .
+
+    $default  reduce using rule 29 (exp)
+
+
+state 66
 
    30 exp: factor '+' factor .
 
     $default  reduce using rule 30 (exp)
 
 
-state 64
+state 67
 
    31 exp: factor '-' factor .
 
     $default  reduce using rule 31 (exp)
 
 
-state 65
+state 68
 
    32 exp: factor '*' factor .
 
     $default  reduce using rule 32 (exp)
 
 
-state 66
+state 69
 
    33 exp: factor '/' factor .
 
     $default  reduce using rule 33 (exp)
 
 
-state 67
+state 70
+
+   34 exp: factor '%' factor .
+
+    $default  reduce using rule 34 (exp)
+
+
+state 71
 
    10 call: IDENT '(' explist ')' ';' .
 
     $default  reduce using rule 10 (call)
 
 
-state 68
+state 72
 
    27 explist: exp ',' explist .
 
     $default  reduce using rule 27 (explist)
 
 
-state 69
+state 73
 
    12 call: FUNC '(' explist ')' ';' .
 
     $default  reduce using rule 12 (call)
 
 
-state 70
+state 74
 
     7 stmt: WHILE '(' exp ')' '{' . stmts '}'
 
@@ -777,7 +823,7 @@ state 70
     IF       shift, and go to state 4
     DECLARE  shift, and go to state 5
 
-    stmts    go to state 77
+    stmts    go to state 81
     stmt     go to state 8
     let      go to state 9
     call     go to state 10
@@ -786,7 +832,7 @@ state 70
     if       go to state 13
 
 
-state 71
+state 75
 
    24 if: IF '(' exp ')' '{' . stmts '}'
 
@@ -796,7 +842,7 @@ state 71
     IF       shift, and go to state 4
     DECLARE  shift, and go to state 5
 
-    stmts    go to state 78
+    stmts    go to state 82
     stmt     go to state 8
     let      go to state 9
     call     go to state 10
@@ -805,16 +851,16 @@ state 71
     if       go to state 13
 
 
-state 72
+state 76
 
    26 symlist: IDENT ',' . symlist
 
-    IDENT  shift, and go to state 57
+    IDENT  shift, and go to state 59
 
-    symlist  go to state 79
+    symlist  go to state 83
 
 
-state 73
+state 77
 
    14 declare: DECLARE IDENT '(' ')' '{' . stmts '}'
 
@@ -824,7 +870,7 @@ state 73
     IF       shift, and go to state 4
     DECLARE  shift, and go to state 5
 
-    stmts    go to state 80
+    stmts    go to state 84
     stmt     go to state 8
     let      go to state 9
     call     go to state 10
@@ -833,56 +879,56 @@ state 73
     if       go to state 13
 
 
-state 74
+state 78
 
    13 declare: DECLARE IDENT '(' symlist ')' . '{' stmts '}'
 
-    '{'  shift, and go to state 81
+    '{'  shift, and go to state 85
 
 
-state 75
+state 79
 
    23 else: ELSE '{' stmts '}' .
 
     $default  reduce using rule 23 (else)
 
 
-state 76
+state 80
 
    22 elsif: ELSIF '(' exp ')' . '{' stmts '}'
 
-    '{'  shift, and go to state 82
+    '{'  shift, and go to state 86
 
 
-state 77
+state 81
 
     7 stmt: WHILE '(' exp ')' '{' stmts . '}'
 
-    '}'  shift, and go to state 83
+    '}'  shift, and go to state 87
 
 
-state 78
+state 82
 
    24 if: IF '(' exp ')' '{' stmts . '}'
 
-    '}'  shift, and go to state 84
+    '}'  shift, and go to state 88
 
 
-state 79
+state 83
 
    26 symlist: IDENT ',' symlist .
 
     $default  reduce using rule 26 (symlist)
 
 
-state 80
+state 84
 
    14 declare: DECLARE IDENT '(' ')' '{' stmts . '}'
 
-    '}'  shift, and go to state 85
+    '}'  shift, and go to state 89
 
 
-state 81
+state 85
 
    13 declare: DECLARE IDENT '(' symlist ')' '{' . stmts '}'
 
@@ -892,7 +938,7 @@ state 81
     IF       shift, and go to state 4
     DECLARE  shift, and go to state 5
 
-    stmts    go to state 86
+    stmts    go to state 90
     stmt     go to state 8
     let      go to state 9
     call     go to state 10
@@ -901,7 +947,7 @@ state 81
     if       go to state 13
 
 
-state 82
+state 86
 
    22 elsif: ELSIF '(' exp ')' '{' . stmts '}'
 
@@ -911,7 +957,7 @@ state 82
     IF       shift, and go to state 4
     DECLARE  shift, and go to state 5
 
-    stmts    go to state 87
+    stmts    go to state 91
     stmt     go to state 8
     let      go to state 9
     call     go to state 10
@@ -920,49 +966,49 @@ state 82
     if       go to state 13
 
 
-state 83
+state 87
 
     7 stmt: WHILE '(' exp ')' '{' stmts '}' .
 
     $default  reduce using rule 7 (stmt)
 
 
-state 84
+state 88
 
    24 if: IF '(' exp ')' '{' stmts '}' .
 
     $default  reduce using rule 24 (if)
 
 
-state 85
+state 89
 
    14 declare: DECLARE IDENT '(' ')' '{' stmts '}' .
 
     $default  reduce using rule 14 (declare)
 
 
-state 86
+state 90
 
    13 declare: DECLARE IDENT '(' symlist ')' '{' stmts . '}'
 
-    '}'  shift, and go to state 88
+    '}'  shift, and go to state 92
 
 
-state 87
+state 91
 
    22 elsif: ELSIF '(' exp ')' '{' stmts . '}'
 
-    '}'  shift, and go to state 89
+    '}'  shift, and go to state 93
 
 
-state 88
+state 92
 
    13 declare: DECLARE IDENT '(' symlist ')' '{' stmts '}' .
 
     $default  reduce using rule 13 (declare)
 
 
-state 89
+state 93
 
    22 elsif: ELSIF '(' exp ')' '{' stmts '}' .
 
