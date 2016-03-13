@@ -97,7 +97,7 @@ struct ast* newref(struct symbol *sym)
 struct symlist * newsymlist(struct symbol *sym, struct symlist *next)
 {
 	struct symlist *sl = malloc(sizeof(struct symlist));
-	
+
 	if(!sl) {
 		yyerror("out of space");
 		exit(0);
@@ -187,6 +187,7 @@ void dodef(struct symbol *name, struct symlist *syms, struct ast *func)
 void treefree(struct ast *a)
 {
 	switch(a->ntype) {
+        case NODE_EXP:
 		case NODE_EXPLIST:
 			treefree(a->r);
 			break;
@@ -194,12 +195,37 @@ void treefree(struct ast *a)
 		case NODE_CALL:
 			treefree(a->l);
 			break;
+        case NODE_INT:
+        case NODE_FLOAT:
+        case NODE_STR:
+        case NODE_SYMBOL:
+            break;
+        case NODE_IF:
+        case NODE_WHILE:
+        case NODE_SELECT:
+        case NODE_STMTS:
+            treefree(a->l);
+            treefree(a->r);
+            break;
+        case NODE_ELSE:
+            treefree(a->r);
+            break;
+        case NODE_LET:
+            free( ((struct symasgn *)a)->v);
+            break;
 	}
+    free(a);
 }
 
-int main()
+int main(int argc, char** argv)
 {
-	if ((yyin = fopen("./input.txt", "r")) == NULL) {
+    char* sourcefile = "./sample.txt";
+
+    if (argc == 2) {
+        sourcefile = argv[1];
+    }
+
+	if ((yyin = fopen(sourcefile, "r")) == NULL) {
 		fprintf(stderr, "Can't open a input file\n");
 		return 1;
 	}

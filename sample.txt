@@ -1,14 +1,13 @@
 // This is test code
-a = 1;
-a = a + 1;
-println("expect: 2 => result: ", a);
+a = 2;
+println("a: ", a); // a: 2
 
 b = a * (4 + 5);
-println("expect: 18 => result: ", b);
+println("b: ", b); // b: 18
 
-c = 5;
+c = 3;
 while (c) {
-	println("c: ", c);
+	println("c: ", c); // c: 3, c: 2, c:1
 	c = c - 1;
 }
 
